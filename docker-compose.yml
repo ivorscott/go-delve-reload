@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+  api:
+    build:
+      context: ./api
+      target: dev
+    environment:
+      ADDR_PORT: 4000
+    ports:
+      - 4000:4000
+    volumes:
+      - ./api:/api
+    command: CompileDaemon --build="go build -o main ./..." --command=./main
+
+  debug-api:
+    build:
+      context: ./api
+      target: dev
+    environment:
+      ADDR_PORT: 8888
+    ports:
+      - 8888:8888
+      - 2345:2345
+    security_opt:
+      - "seccomp:unconfined"
+    tty: true
+    stdin_open: true
+    command: dlv debug --accept-multiclient --continue --headless --listen=:2345 --api-version=2 --log ./cmd/web/
