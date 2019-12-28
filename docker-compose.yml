@@ -1,28 +1,97 @@
-version: "3.7"
+version: "2.4"
+
+volumes:
+  data:
+
+networks:
+  postgres-net:
+
+x-api: &default-api
+  build:
+    context: ./api
+    target: dev
+  environment:
+    CGO_ENABLED: 0
+    API_DB_HOST: db
+    API_DB_DISABLE_TLS: "true"
+    API_WEB_PRODUCTION: "false"
+    API_WEB_ADDRESS: :$API_PORT
+    API_WEB_DEBUG: :$PPROF_PORT
+    API_WEB_READ_TIMEOUT: 7s
+    API_WEB_WRITE_TIMEOUT: 7s
+    API_WEB_SHUTDOWN_TIMEOUT: 7s
+    API_WEB_FRONTEND_ADDRESS: $API_WEB_FRONTEND_ADDRESS
+  volumes:
+    - ./api:/api
+  networks:
+    - postgres-net
+  depends_on:
+    db:
+      condition: service_healthy
+
 services:
   api:
+    <<: *default-api
+    ports:
+      - $API_PORT:$API_PORT
+      - $PPROF_PORT:$PPROF_PORT
+    # swap commands to disable live reload
+    # command: go run ./cmd/api
+    command: CompileDaemon --build="go build -o main ./cmd/api" -log-prefix=false --command=./main
+
+  client:
     build:
-      context: ./api
+      context: ./client
       target: dev
     environment:
-      ADDR_PORT: 4000
+      HTTPS: "true"
+      REACT_APP_BACKEND: $REACT_APP_BACKEND
+      CHOKIDAR_USEPOLLING: "true"
     ports:
-      - 4000:4000
+      - $CLIENT_PORT:$CLIENT_PORT
+    # fixes bug in react-scripts/start.js found in latest create react app release
+    # https://github.com/facebook/create-react-app/issues/8688
+    tty: true
+    stdin_open: true
     volumes:
-      - ./api:/api
-    command: CompileDaemon --build="go build -o main ./..." --command=./main
+      - ./client:/client/app
+      - /client/app/node_modules
 
   debug-api:
-    build:
-      context: ./api
-      target: dev
+    <<: *default-api
     environment:
-      ADDR_PORT: 8888
+      API_WEB_ADDRESS: :8888
+      API_WEB_DEBUG: :6061
     ports:
-      - 8888:8888
       - 2345:2345
+      - 8888:8888
+      - 6061:6061
+      # run a container without the default seccomp profile
+      # https://github.com/go-delve/delve/issues/515#issuecomment-214911481
     security_opt:
       - "seccomp:unconfined"
     tty: true
     stdin_open: true
-    command: dlv debug --accept-multiclient --continue --headless --listen=:2345 --api-version=2 --log ./cmd/web/
+    command: dlv debug --accept-multiclient --continue --headless --listen=:2345 --api-version=2 --log ./cmd/api/
+
+  db:
+    image: postgres:11.6
+    container_name: db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      start_period: 30s
+    ports:
+      - 5432:5432
+    volumes:
+      - data:/var/lib/postgresql/data
+      - /seed
+    networks:
+      - postgres-net
+
+  debug-db:
+    image: dencold/pgcli
+    environment:
+      DB_URL: postgres://postgres:postgres@db:5432/postgres?sslmode=disable
+    networks:
+      - postgres-net
