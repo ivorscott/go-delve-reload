@@ -2,6 +2,17 @@
 
 ### Setup a Go development environment in Docker
 
+This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-development-with-docker). If you follow along, the project starter is available under the `starter` branch.
+
+## Contents
+
+- VSCode Setup
+- Multi-stage Builds
+- Docker Compose
+- Traefik
+- Live Reloading
+- Debugging
+
 #### Commands
 
 ```makefile
@@ -35,5 +46,3 @@ Run the debuggable api. Set a break point on a route handler. Click 'Launch remo
 }
 
 ```
-
-TODO: Live reload while debugging

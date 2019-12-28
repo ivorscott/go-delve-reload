@@ -1,24 +1,45 @@
 #!make
 
-rm:
-	@echo "\n[ stopping and removing docker containers ]"
-	@docker stop `docker ps -a -q`
-	@docker rm `docker ps -a -q`
-	@echo "\n"
+NETWORK="$(shell docker network ls | grep traefik-public)"
 
-rmi:
-	@echo "\n[ removing docker images ]"
-	docker rmi -f `docker images -a -q`
-	@echo "\n"
+network:
+ifneq (,$(findstring traefik-public,$(NETWORK)))
+    # Network already exists
+else
+    # Network doesn't exist
+	@echo
+	@echo [ creating network... ]
+	docker network create traefik-public
+	@echo [ done ]
 
-api:
-	@echo "\n[ startup api]"
-	@docker-compose up --build api
-	@echo "\n"
+endif
+
+api: network
+	@echo
+	@echo [ starting api... ]
+	docker-compose up traefik api
+
+api-d:
+	@echo
+	@echo [ teardown api... ]
+	docker-compose down
+	@echo [ done ]
 
 debug-api:
-	@echo "\n[ debug api ]"
-	@docker-compose up --build debug-api
-	@echo "\n"
+	@echo
+	@echo [ starting debug-api... ]
+	docker-compose up debug-api
+
+run:
+	@echo
+	@echo [ running $(cmd) in new api container... ]
+	docker-compose run -u root --rm api $(cmd)
+	@echo [ done ]
+
+exec:
+	@echo
+	@echo [ executing $(cmd) in existing api container... ]
+	docker-compose exec -u root api $(cmd)
+	@echo [ done ]
 
 .PHONY:	api

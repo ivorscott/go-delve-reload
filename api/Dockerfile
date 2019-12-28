@@ -21,9 +21,9 @@ RUN go get github.com/githubnemo/CompileDaemon
 
 WORKDIR /api
 
-# 4000 api
-# 8888 debuggable api
-# 2345 debugger
+# port 4000 -> api port
+# port 8888 -> debuggable api port
+# port 2345 -> debugger port
 EXPOSE 4000 8888 2345
 
 # Test

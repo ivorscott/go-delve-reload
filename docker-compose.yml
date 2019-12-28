@@ -1,5 +1,34 @@
 version: "3.7"
 services:
+  traefik:
+    image: traefik:v2.1.1
+    command:
+      - "--api.insecure=true" # Not For Production
+      - "--api.debug=true"
+      - "--log.level=DEBUG"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik-public"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.api.local`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https@docker"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
   api:
     build:
       context: ./api
@@ -10,6 +39,14 @@ services:
       - 4000:4000
     volumes:
       - ./api:/api
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.rule=Host(`api.local`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.services.api.loadbalancer.server.port=4000"
     command: CompileDaemon --build="go build -o main ./..." --command=./main
 
   debug-api:
@@ -21,8 +58,20 @@ services:
     ports:
       - 8888:8888
       - 2345:2345
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.debug-api.tls=true"
+      - "traefik.http.routers.debug-api.rule=Host(`debug.api.local`)"
+      - "traefik.http.routers.debug-api.entrypoints=websecure"
+      - "traefik.http.services.debug-api.loadbalancer.server.port=8888"
     security_opt:
       - "seccomp:unconfined"
     tty: true
     stdin_open: true
     command: dlv debug --accept-multiclient --continue --headless --listen=:2345 --api-version=2 --log ./cmd/web/
+
+networks:
+  traefik-public:
+    external: true
