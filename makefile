@@ -32,14 +32,17 @@ debug-api:
 
 run:
 	@echo
-	@echo [ running $(cmd) in new api container... ]
+	@echo [ executing $(cmd) in new api container... ]
 	docker-compose run -u root --rm api $(cmd)
 	@echo [ done ]
 
 exec:
 	@echo
-	@echo [ executing $(cmd) in existing api container... ]
+	@echo [ executing $(cmd) in running api container... ]
 	docker-compose exec -u root api $(cmd)
 	@echo [ done ]
+
+test:
+	@make exec cmd="go test ./..."
 
 .PHONY:	api

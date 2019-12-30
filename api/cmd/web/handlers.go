@@ -19,3 +19,10 @@ func (app *application) products(w http.ResponseWriter, r *http.Request) {
 		app.errorLog.Fatal(err)
 	}
 }
+
+func ping(w http.ResponseWriter, r *http.Request) {
+	_, err := w.Write([]byte("OK"))
+	if err != nil {
+		println("ping failed")
+	}
+}
