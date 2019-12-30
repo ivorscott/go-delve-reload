@@ -1,2 +1,6 @@
 .vscode/settings.json
+secrets
+init/backup.sql
 main
+c.out
+coverage.html

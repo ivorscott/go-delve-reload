@@ -3,31 +3,46 @@ package main
 import (
 	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestPing(t *testing.T) {
-	rr := httptest.NewRecorder()
-	r, err := http.NewRequest(http.MethodGet, "/", nil)
-
+func TestProductsHandler(t *testing.T) {
+	resp, err := http.Get("http://localhost:4000/products")
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("GET /products err= %s; want nil", err)
 	}
+	defer resp.Body.Close()
 
-	ping(rr, r)
-	rs := rr.Result()
-
-	if rs.StatusCode != http.StatusOK {
-		t.Errorf("want %d; got %d", http.StatusOK, rs.StatusCode)
-	}
-
-	defer rs.Body.Close()
-	body, err := ioutil.ReadAll(rs.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		t.Fatal(err)
+		t.Errorf("ioutils.ReadAll() err =%s; want nil", err)
 	}
-	if string(body) != "OK" {
-		t.Errorf("want body to equal %q", "OK")
-	}
+
+	got := string(body)
+	want := `
+	[{
+		"ID":1,
+		"Name":"Xbox One X",
+		"Price":499,
+		"Description":"Eighth-generation home video game console developed by Microsoft.",
+		"Created":"2020-01-02T14:02:26.58977Z"
+	},
+	{
+		"ID":2,
+		"Name":"Playsation 4",
+		"Price":299,
+		"Description":"Eighth-generation home video game console developed by Sony Interactive Entertainment.",
+		"Created":"2020-01-02T14:02:26.58977Z"
+	},
+	{
+		"ID":3,
+		"Name":"Nintendo Switch",
+		"Price":299,
+		"Description":"Hybrid console that can be used as a stationary and portable device developed by Nintendo.",
+		"Created":"2020-01-02T14:02:26.58977Z"
+	}]`
+
+	assert.JSONEq(t, got, want, "Response body differs")
 }

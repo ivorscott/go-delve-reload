@@ -9,9 +9,11 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 - VSCode Setup
 - Multi-stage Builds
 - Docker Compose
+- Postgres
 - Traefik
 - Live Reloading
 - Debugging
+- Testing
 
 #### Commands
 
@@ -20,13 +22,19 @@ make api # develop api with live reload
 
 make debug-api # use delve on the same api in a separate container (no live reload)
 
+make debug-db # use pgcli to inspect postgres db
+
+make dump # create a db backup
+
+make exec cmd="..." # execute command in existing container
+
 make api-d # tear down all containers
 
-make test # run unit tests
+make install # install api dependency
 
-make run cmd="..." # run command in new api container
+make tidy # clean up unused api dependencies
 
-make exec cmd="..." # execute command in existing api container
+make test # run tests
 
 ```
 

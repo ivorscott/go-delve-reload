@@ -33,32 +33,49 @@ services:
     build:
       context: ./api
       target: dev
+    secrets:
+      - postgres_db
+      - postgres_host
+      - postgres_user
+      - postgres_passwd
     environment:
       ADDR_PORT: 4000
-    ports:
-      - 4000:4000
+      POSTGRES_HOST: /run/secrets/postgres_host
+      POSTGRES_DB: /run/secrets/postgres_db
+      POSTGRES_USER: /run/secrets/postgres_user
+      POSTGRES_PASSWORD: /run/secrets/postgres_passwd
     volumes:
       - ./api:/api
     networks:
+      - postgres
       - traefik-public
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.rule=Host(`api.local`)"
       - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.services.api.loadbalancer.server.port=4000"
-    command: CompileDaemon --build="go build -o main ./..." --command=./main
+      - "traefik.http.services.debug-api.loadbalancer.server.port=4000"
+    command: CompileDaemon --build="go build -o main ./cmd/web" --command=./main
 
   debug-api:
     build:
       context: ./api
       target: dev
+    secrets:
+      - postgres_db
+      - postgres_host
+      - postgres_user
+      - postgres_passwd
     environment:
       ADDR_PORT: 8888
+      POSTGRES_HOST: /run/secrets/postgres_host
+      POSTGRES_DB: /run/secrets/postgres_db
+      POSTGRES_USER: /run/secrets/postgres_user
+      POSTGRES_PASSWORD: /run/secrets/postgres_passwd
     ports:
-      - 8888:8888
       - 2345:2345
     networks:
+      - postgres
       - traefik-public
     labels:
       - "traefik.enable=true"
@@ -72,6 +89,63 @@ services:
     stdin_open: true
     command: dlv debug --accept-multiclient --continue --headless --listen=:2345 --api-version=2 --log ./cmd/web/
 
+  db:
+    image: postgres:11.6
+    container_name: db
+    secrets:
+      - postgres_db
+      - postgres_user
+      - postgres_passwd
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_passwd
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./api/init/:/docker-entrypoint-initdb.d/
+    networks:
+      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ivor@devpie.io
+      PGADMIN_DEFAULT_PASSWORD: "SuperSecret"
+    depends_on:
+      - db
+    networks:
+      - postgres
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.tls=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.local`)"
+      - "traefik.http.routers.pgadmin.entrypoints=websecure"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+    restart: unless-stopped
+
+volumes:
+  postgres:
+
 networks:
+  postgres:
+    external: true
   traefik-public:
     external: true
+
+secrets:
+  postgres_db:
+    file: ./secrets/postgres_db
+  postgres_host:
+    file: ./secrets/postgres_host
+  postgres_passwd:
+    file: ./secrets/postgres_passwd
+  postgres_user:
+    file: ./secrets/postgres_user
