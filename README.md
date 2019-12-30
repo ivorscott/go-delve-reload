@@ -19,6 +19,15 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 make api # develop api with live reload
 
 make debug-api # use delve on the same api in a separate container (no live reload)
+
+make api-d # tear down all containers
+
+make test # run unit tests
+
+make run cmd="..." # run command in new api container
+
+make exec cmd="..." # execute command in existing api container
+
 ```
 
 #### Using the debugger in VSCode
