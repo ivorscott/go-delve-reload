@@ -9,7 +9,6 @@ SUCCESS=[ done "\xE2\x9C\x94" ]
 
 user ?= root
 service ?= api
-backup ?= backup
 
 traefik-network:
 ifeq (,$(findstring traefik-public,$(NETWORKS)))

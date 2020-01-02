@@ -1,5 +1,5 @@
 .vscode/settings.json
-secrets
+/secrets
 /api/init/backup.sql
 main
 c.out
