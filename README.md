@@ -15,6 +15,44 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 - Debugging
 - Testing
 
+### Folder structure
+
+```
+├── .vscode
+|  └── launch.json
+├── README.md
+├── api
+|  ├── Dockerfile
+|  ├── cmd
+|  |  └── web
+|  |     ├── handlers.go
+|  |     ├── handlers_test.go
+|  |     ├── helpers.go
+|  |     ├── main.go
+|  |     ├── middleware.go
+|  |     └── routes.go
+|  ├── go.mod
+|  ├── go.sum
+|  ├── init
+|  |  ├── backup.sql
+|  |  └── create-db.sh
+|  ├── main
+|  └── pkg
+|     ├── models
+|     |  ├── models.go
+|     |  └── postgres
+|     |     └── products.go
+|     └── secrets
+|        └── secrets.go
+├── docker-compose.yml
+├── makefile
+└── secrets
+   ├── postgres_db
+   ├── postgres_host
+   ├── postgres_passwd
+   └── postgres_user
+```
+
 #### Commands
 
 ```makefile
