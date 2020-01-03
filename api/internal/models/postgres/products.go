@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"github.com/ivorscott/go-delve-reload/pkg/models"
+	"github.com/ivorscott/go-delve-reload/internal/models"
 	"github.com/jinzhu/gorm"
 )
 

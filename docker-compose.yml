@@ -55,7 +55,27 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.local`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.services.debug-api.loadbalancer.server.port=4000"
-    command: CompileDaemon --build="go build -o main ./cmd/web" --command=./main
+    command: CompileDaemon --build="go build -o main ./cmd/api" --command=./main
+
+  client:
+    build:
+      context: ./client
+      target: dev
+    ports:
+      - 3000:3000
+    volumes:
+      - ./client:/client/app
+      - /client/app/node_modules
+    # Because of create-react-app bug we won't be using traefik here in development
+    # https://github.com/facebook/create-react-app/issues/8075
+    # networks:
+    #   - traefik-public
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.client.tls=true"
+    #   - "traefik.http.routers.client.rule=Host(`client.local`)"
+    #   - "traefik.http.routers.client.entrypoints=websecure"
+    #   - "traefik.http.services.client.loadbalancer.server.port=3000"
 
   debug-api:
     build:
@@ -87,7 +107,7 @@ services:
       - "seccomp:unconfined"
     tty: true
     stdin_open: true
-    command: dlv debug --accept-multiclient --continue --headless --listen=:2345 --api-version=2 --log ./cmd/web/
+    command: dlv debug --accept-multiclient --continue --headless --listen=:2345 --api-version=2 --log ./cmd/api/
 
   db:
     image: postgres:11.6
@@ -104,7 +124,7 @@ services:
       - 5432:5432
     volumes:
       - postgres:/var/lib/postgresql/data
-      - ./api/init/:/docker-entrypoint-initdb.d/
+      - ./api/scripts/:/docker-entrypoint-initdb.d/
     networks:
       - postgres
     healthcheck:

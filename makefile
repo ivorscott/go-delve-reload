@@ -7,8 +7,13 @@ POSTGRES_USER="$(shell cat ./secrets/postgres_user)"
 POSTGRES_PASSWORD="$(shell cat ./secrets/postgres_passwd)"
 SUCCESS=[ done "\xE2\x9C\x94" ]
 
+# default arguments
 user ?= root
 service ?= api
+
+all:
+	@echo [ starting client '&' api... ]
+	docker-compose up traefik client api db pgadmin
 
 traefik-network:
 ifeq (,$(findstring traefik-public,$(NETWORKS)))
@@ -28,8 +33,12 @@ api: traefik-network postgres-network
 	@echo [ starting api... ]
 	docker-compose up traefik api db pgadmin
 
-api-d:
-	@echo [ teardown api... ]
+client: 
+	@echo [ starting client... ]
+	docker-compose up traefik client
+
+down:
+	@echo [ teardown all containers... ]
 	docker-compose down
 	@echo $(SUCCESS)
 
@@ -65,7 +74,7 @@ debug-db:
 
 dump:
 	@echo [ dumping postgres backup for $(POSTGRES_DB)... ]
-	@docker exec -it $(POSTGRES_HOST) pg_dump --username $(POSTGRES_USER) $(POSTGRES_DB) > ./api/init/backup.sql
+	@docker exec -it $(POSTGRES_HOST) pg_dump --username $(POSTGRES_USER) $(POSTGRES_DB) > ./api/scripts/backup.sql
 	@echo $(SUCCESS)
 
 .PHONY:	api

@@ -2,15 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/ivorscott/go-delve-reload/internal/models/postgres"
+	"github.com/ivorscott/go-delve-reload/pkg/secrets"
+	"github.com/jinzhu/gorm"
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/ivorscott/go-delve-reload/pkg/models/postgres"
-	"github.com/ivorscott/go-delve-reload/pkg/secrets"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/lib/pq"
 )
 
 type application struct {
