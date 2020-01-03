@@ -11,6 +11,7 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 - Docker Compose
 - Postgres
 - Traefik
+- React
 - Live Reloading
 - Debugging
 - Testing
