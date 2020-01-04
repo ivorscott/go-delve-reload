@@ -26,19 +26,22 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 |  ├── Dockerfile
 |  ├── cmd
 |  |  └── api
-|  |     ├── api.go
-|  |     ├── handlers.go
-|  |     ├── handlers_test.go
-|  |     ├── helpers.go
-|  |     ├── middleware.go
-|  |     └── routes.go
+|  |     └── main.go
 |  ├── go.mod
 |  ├── go.sum
 |  ├── internal
+|  |  ├── api
+|  |  |  ├── client.go
+|  |  |  ├── handlers.go
+|  |  |  ├── handlers_test.go
+|  |  |  ├── helpers.go
+|  |  |  ├── middleware.go
+|  |  |  └── routes.go
 |  |  └── models
 |  |     ├── models.go
 |  |     └── postgres
 |  |        └── products.go
+|  ├── main
 |  ├── pkg
 |  |  └── secrets
 |  |     └── secrets.go
