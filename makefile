@@ -38,22 +38,19 @@ down:
 	docker-compose down
 	@echo $(SUCCESS)
 
-install:
-	@echo [ installing $(service) dependencies... ]
-	@make exec cmd="$(cmd)"
-
 tidy: 
 	@echo [ cleaning up unused $(service) dependencies... ]
-	@make exec cmd="go mod tidy"
+	@make exec service="api" cmd="go mod tidy"
+	@echo $(SUCCESS)
 
 exec:
-	@echo [ executing $(cmd) ]
+	@echo [ executing $(cmd) in $(service) ]
 	docker-compose exec -u $(user) $(service) $(cmd)
 	@echo $(SUCCESS)
 
-test:
+test-api:
 	@echo [ running tests... ]
-	@make exec cmd="go test -v ./..."
+	@make exec service="api" cmd="go test -v ./..."
 
 debug-api:
 	@echo [ debugging api... ]

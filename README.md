@@ -41,7 +41,6 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 |  |     ├── models.go
 |  |     └── postgres
 |  |        └── products.go
-|  ├── main
 |  ├── pkg
 |  |  └── secrets
 |  |     └── secrets.go
@@ -74,9 +73,11 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 #### Commands
 
 ```makefile
-make # launch fullstack app
+make # launch fullstack app (frontend/backend)
 
 make api # develop api with live reload
+
+make test-api # run api tests
 
 make debug-api # use delve on the same api in a separate container (no live reload)
 
@@ -84,15 +85,11 @@ make debug-db # use pgcli to inspect postgres db
 
 make dump # create a db backup
 
-make exec cmd="..." # execute command in existing container
+make exec user="..." service="..." cmd="..." # execute command in running container (user defaults to root)
 
 make down # tear down all containers
 
-make install cmd="..." # install api dependency
-
 make tidy # clean up unused api dependencies
-
-make test # run tests
 
 ```
 
