@@ -41,7 +41,6 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 |  |     ├── models.go
 |  |     └── postgres
 |  |        └── products.go
-|  ├── main
 |  ├── pkg
 |  |  └── secrets
 |  |     └── secrets.go
@@ -71,10 +70,33 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
    └── postgres_user
 ```
 
+### Usage
+
+1 - Create a secrets folder in the project root.
+Add the following secret files:
+
+```
+└── secrets
+   ├── postgres_db
+   ├── postgres_host
+   ├── postgres_passwd
+   └── postgres_user
+```
+
+In each file add your secret value.
+
+2 - Add the following domains to your machine's /etc/hosts file
+
+```
+127.0.0.1       client.local api.local debug.api.local traefik.api.local pgadmin.local
+```
+
+3 - In a terminal, and under the project root, execute `make`.
+
 #### Commands
 
 ```makefile
-make # launch fullstack app
+make # launch fullstack app (frontend/backend)
 
 make api # develop api with live reload
 
@@ -84,15 +106,15 @@ make debug-db # use pgcli to inspect postgres db
 
 make dump # create a db backup
 
-make exec cmd="..." # execute command in existing container
-
-make down # tear down all containers
-
-make install cmd="..." # install api dependency
+make exec user="..." service="..." cmd="..." # execute command in running container
 
 make tidy # clean up unused api dependencies
 
-make test # run tests
+make test-api # run api tests
+
+make test-client # run client tests
+
+make down # tear down all containers
 
 ```
 
@@ -121,3 +143,11 @@ Run the debuggable api. Set a break point on a route handler. Click 'Launch remo
 }
 
 ```
+
+**Note:**
+
+_Always replicate the production environment as much as possible. We do this locally by using self-signed certificates automated by Traefik._
+
+_In your browser, you may see the "Your connection is not private" message. This is common when using self-signed certificates._
+
+_Simply click "Advanced", and then "Proceed to ... (unsafe)"._

@@ -12,14 +12,9 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     );
     INSERT INTO products (name, price, description)
     VALUES
-        ('Xbox One XXXXXX', 499.00, 'Eighth-generation home video game console developed by Microsoft.'),
-        ('Playsation 444444', 299.00, 'Eighth-generation home video game console developed by Sony Interactive Entertainment.'),
+        ('Xbox One X', 499.00, 'Eighth-generation home video game console developed by Microsoft.'),
+        ('Playsation 4', 299.00, 'Eighth-generation home video game console developed by Sony Interactive Entertainment.'),
         ('Nintendo Switch', 299.00, 'Hybrid console that can be used as a stationary and portable device developed by Nintendo.');
     SELECT name, price from products;
-EOSQL
-else 
-echo -e /docker-entrypoint-initdb.d/create-db.sh was ignored because a backup exists "\n"
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-SELECT name, price from products;
 EOSQL
 fi
