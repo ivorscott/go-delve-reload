@@ -29,7 +29,6 @@ RUN npm i --only=development \
     && npm cache clean --force
 
 COPY patch.js /client/node_modules/react-dev-utils/webpackHotDevClient.js
-
 # log npm config (for debugging)
 RUN npm config list
 WORKDIR /client/app

@@ -66,16 +66,16 @@ services:
     volumes:
       - ./client:/client/app
       - /client/app/node_modules
-    # Because of create-react-app bug we won't be using traefik here in development
+    # Because of a create-react-app bug I added patch.js until its resolved
     # https://github.com/facebook/create-react-app/issues/8075
-    # networks:
-    #   - traefik-public
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.client.tls=true"
-    #   - "traefik.http.routers.client.rule=Host(`client.local`)"
-    #   - "traefik.http.routers.client.entrypoints=websecure"
-    #   - "traefik.http.services.client.loadbalancer.server.port=3000"
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.client.tls=true"
+      - "traefik.http.routers.client.rule=Host(`client.local`)"
+      - "traefik.http.routers.client.entrypoints=websecure"
+      - "traefik.http.services.client.loadbalancer.server.port=3000"
 
   debug-api:
     build:
