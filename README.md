@@ -20,31 +20,45 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 
 ```
 ├── .vscode
-|  └── launch.json
+|  ├── launch.json
 ├── README.md
 ├── api
 |  ├── Dockerfile
 |  ├── cmd
-|  |  └── web
+|  |  └── api
+|  |     ├── api.go
 |  |     ├── handlers.go
 |  |     ├── handlers_test.go
 |  |     ├── helpers.go
-|  |     ├── main.go
 |  |     ├── middleware.go
 |  |     └── routes.go
 |  ├── go.mod
 |  ├── go.sum
-|  ├── init
-|  |  ├── backup.sql
-|  |  └── create-db.sh
-|  ├── main
-|  └── pkg
-|     ├── models
-|     |  ├── models.go
-|     |  └── postgres
-|     |     └── products.go
-|     └── secrets
-|        └── secrets.go
+|  ├── internal
+|  |  └── models
+|  |     ├── models.go
+|  |     └── postgres
+|  |        └── products.go
+|  ├── pkg
+|  |  └── secrets
+|  |     └── secrets.go
+|  └── scripts
+|     └── create-db.sh
+├── client
+|  ├── Dockerfile
+|  ├── README.md
+|  ├── package-lock.json
+|  ├── package.json
+|  ├── public
+|  └── src
+|     ├── App.css
+|     ├── App.js
+|     ├── App.test.js
+|     ├── index.css
+|     ├── index.js
+|     ├── logo.svg
+|     ├── serviceWorker.js
+|     └── setupTests.js
 ├── docker-compose.yml
 ├── makefile
 └── secrets
@@ -57,6 +71,8 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 #### Commands
 
 ```makefile
+make # launch fullstack app
+
 make api # develop api with live reload
 
 make debug-api # use delve on the same api in a separate container (no live reload)
@@ -67,9 +83,9 @@ make dump # create a db backup
 
 make exec cmd="..." # execute command in existing container
 
-make api-d # tear down all containers
+make down # tear down all containers
 
-make install # install api dependency
+make install cmd="..." # install api dependency
 
 make tidy # clean up unused api dependencies
 

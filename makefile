@@ -33,10 +33,6 @@ api: traefik-network postgres-network
 	@echo [ starting api... ]
 	docker-compose up traefik api db pgadmin
 
-client: 
-	@echo [ starting client... ]
-	docker-compose up traefik client
-
 down:
 	@echo [ teardown all containers... ]
 	docker-compose down
