@@ -11,7 +11,7 @@ SUCCESS=[ done "\xE2\x9C\x94" ]
 user ?= root
 service ?= api
 
-all:
+all: traefik-network postgres-network
 	@echo [ starting client '&' api... ]
 	docker-compose up traefik client api db pgadmin
 

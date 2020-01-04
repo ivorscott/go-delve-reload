@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ type application struct {
 	products *postgres.ProductModel
 }
 
-func main() {
+func Client() {
 	dockerSecrets, _ := secrets.NewDockerSecrets()
 
 	dbname, _ := dockerSecrets.Get("postgres_db")
