@@ -1,4 +1,4 @@
-FROM golang:1.13 as base
+FROM golang:1.13.5 as base
 
 LABEL maintainer="Ivor Scott <ivor@devpie.io>"
 
@@ -24,6 +24,7 @@ WORKDIR /api
 # port 4000 -> api port
 # port 8888 -> debuggable api port
 # port 2345 -> debugger port
+
 EXPOSE 4000 8888 2345
 
 # Production
