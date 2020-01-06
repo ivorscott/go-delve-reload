@@ -72,5 +72,3 @@ dump:
 	@echo [ dumping postgres backup for $(POSTGRES_DB)... ]
 	@docker exec -it $(POSTGRES_HOST) pg_dump --username $(POSTGRES_USER) $(POSTGRES_DB) > ./api/scripts/backup.sql
 	@echo $(SUCCESS)
-
-.PHONY:	api
