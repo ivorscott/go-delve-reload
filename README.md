@@ -65,7 +65,6 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 ├── makefile
 └── secrets
    ├── postgres_db
-   ├── postgres_host
    ├── postgres_passwd
    └── postgres_user
 ```
@@ -78,7 +77,6 @@ Add the following secret files:
 ```
 └── secrets
    ├── postgres_db
-   ├── postgres_host
    ├── postgres_passwd
    └── postgres_user
 ```

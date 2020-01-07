@@ -23,9 +23,9 @@ func Client() {
 	dbname, _ := dockerSecrets.Get("postgres_db")
 	dbuser, _ := dockerSecrets.Get("postgres_user")
 	dbpass, _ := dockerSecrets.Get("postgres_passwd")
-	dbhost, _ := dockerSecrets.Get("postgres_host")
 
 	addr := ":" + os.Getenv("ADDR_PORT")
+	dbhost := os.Getenv("POSTGRES_HOST")
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)

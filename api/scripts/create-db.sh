@@ -2,7 +2,8 @@
 set -e
 
 if [ ! -f "/docker-entrypoint-initdb.d/backup.sql" ]; then
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -- <<-EOSQL
     CREATE TABLE products (
         id serial primary key,
 	    name varchar(100) not null,

@@ -35,12 +35,11 @@ services:
       target: dev
     secrets:
       - postgres_db
-      - postgres_host
       - postgres_user
       - postgres_passwd
     environment:
       ADDR_PORT: 4000
-      POSTGRES_HOST: /run/secrets/postgres_host
+      POSTGRES_HOST: db
       POSTGRES_DB: /run/secrets/postgres_db
       POSTGRES_USER: /run/secrets/postgres_user
       POSTGRES_PASSWORD: /run/secrets/postgres_passwd
@@ -83,12 +82,11 @@ services:
       target: dev
     secrets:
       - postgres_db
-      - postgres_host
       - postgres_user
       - postgres_passwd
     environment:
       ADDR_PORT: 8888
-      POSTGRES_HOST: /run/secrets/postgres_host
+      POSTGRES_HOST: db
       POSTGRES_DB: /run/secrets/postgres_db
       POSTGRES_USER: /run/secrets/postgres_user
       POSTGRES_PASSWORD: /run/secrets/postgres_passwd
@@ -127,11 +125,6 @@ services:
       - ./api/scripts/:/docker-entrypoint-initdb.d/
     networks:
       - postgres
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   pgadmin:
     image: dpage/pgadmin4
@@ -153,6 +146,7 @@ services:
 
 volumes:
   postgres:
+    external: true
 
 networks:
   postgres:
@@ -163,8 +157,6 @@ networks:
 secrets:
   postgres_db:
     file: ./secrets/postgres_db
-  postgres_host:
-    file: ./secrets/postgres_host
   postgres_passwd:
     file: ./secrets/postgres_passwd
   postgres_user:
