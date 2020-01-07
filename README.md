@@ -69,6 +69,11 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
    └── postgres_user
 ```
 
+### Requirements
+
+- Docker
+- VSCode
+
 ### Usage
 
 1 - Create a secrets folder in the project root.
