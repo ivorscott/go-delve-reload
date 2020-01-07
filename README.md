@@ -91,6 +91,14 @@ In each file add your secret value.
 
 3 - In a terminal, and under the project root, execute `make`.
 
+4 - Navigate to https://api.local/products and https://client.local in two separate tabs.
+
+**Note:**
+
+_To replicate the production environment as much as possible locally, we use self-signed certificates automated by Traefik._
+
+_In your browser, you may see a warning and need to click a link to proceed to the requested page. This is common when using self-signed certificates._
+
 #### Commands
 
 ```makefile
@@ -141,11 +149,3 @@ Run the debuggable api. Set a break point on a route handler. Click 'Launch remo
 }
 
 ```
-
-**Note:**
-
-_Always replicate the production environment as much as possible. We do this locally by using self-signed certificates automated by Traefik._
-
-_In your browser, you may see the "Your connection is not private" message. This is common when using self-signed certificates._
-
-_Simply click "Advanced", and then "Proceed to ... (unsafe)"._
