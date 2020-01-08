@@ -1,7 +1,5 @@
 FROM golang:1.13.5 as base
 
-LABEL maintainer="Ivor Scott <ivor@devpie.io>"
-
 WORKDIR /api
 
 COPY . .
