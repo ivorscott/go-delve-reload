@@ -24,6 +24,3 @@ WORKDIR /api
 # port 2345 -> debugger port
 
 EXPOSE 4000 8888 2345
-
-# Production
-FROM base as prod
