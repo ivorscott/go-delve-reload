@@ -13,7 +13,7 @@ service ?= api
 
 all: traefik-network postgres-network postgres-volume
 	@echo [ starting client '&' api... ]
-	docker-compose up traefik client api db pgadmin
+	docker-compose up --build traefik client api db pgadmin
 
 traefik-network:
 ifeq (,$(findstring traefik-public,$(NETWORKS)))
@@ -79,3 +79,17 @@ dump:
 	@echo [ dumping postgres backup for $(POSTGRES_DB)... ]
 	@docker exec -it db pg_dump --username $(POSTGRES_USER) $(POSTGRES_DB) > ./api/scripts/backup.sql
 	@echo $(SUCCESS)
+
+.PHONY: all
+.PHONY: traefik-network
+.PHONY: postgres-network
+.PHONY: postgres-volume
+.PHONY: api
+.PHONY: down
+.PHONY: tidy
+.PHONY: exec
+.PHONY: test-client
+.PHONY: test-api
+.PHONY: debug-api
+.PHONY: debug-db
+.PHONY: dump
