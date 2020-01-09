@@ -2,11 +2,10 @@ FROM golang:1.13.5 as base
 
 WORKDIR /api
 
-COPY . .
+COPY go.* ./
 
 RUN go mod download
 
-# Development
 FROM base as dev
 
 ENV GOPATH /go
@@ -20,7 +19,25 @@ RUN go get github.com/githubnemo/CompileDaemon
 WORKDIR /api
 
 # port 4000 -> api port
-# port 8888 -> debuggable api port
 # port 2345 -> debugger port
 
-EXPOSE 4000 8888 2345
+EXPOSE 4000 2345
+
+FROM dev as test
+
+COPY . .
+
+RUN go test -v ./...
+
+FROM test as build-stage
+
+RUN go build -o main ./cmd/api
+
+FROM scratch as prod
+
+COPY --from=build-stage /api/main main
+
+CMD ["./main"]
+
+
+
