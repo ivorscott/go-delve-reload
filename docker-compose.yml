@@ -3,7 +3,7 @@ services:
   traefik:
     image: traefik:v2.1.1
     command:
-      - "--api.insecure=true" # Not For Production
+      - "--api.insecure=true" # Not For Production https://community.containo.us/t/what-api-insecure-do-exactly/1712
       - "--api.debug=true"
       - "--log.level=DEBUG"
       - "--providers.docker"
@@ -65,8 +65,6 @@ services:
     volumes:
       - ./client:/client/app
       - /client/app/node_modules
-    # Because of a create-react-app bug I added patch.js until its resolved
-    # https://github.com/facebook/create-react-app/issues/8075
     networks:
       - traefik-public
     labels:
