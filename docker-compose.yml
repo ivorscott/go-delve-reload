@@ -1,10 +1,10 @@
 version: "3.7"
 services:
   traefik:
-    image: traefik:v2.1.1
+    image: traefik:v2.1.2
     container_name: traefik
     command:
-      - "--api.insecure=true" # Not For Production https://community.containo.us/t/what-api-insecure-do-exactly/1712
+      - "--api.insecure=true" # Not For Production
       - "--api.debug=true"
       - "--log.level=DEBUG"
       - "--providers.docker"
@@ -48,7 +48,7 @@ services:
     volumes:
       - ./api:/api
     networks:
-      - postgres
+      - postgres-net
       - traefik-public
     labels:
       - "traefik.enable=true"
@@ -92,10 +92,12 @@ services:
       POSTGRES_DB: /run/secrets/postgres_db
       POSTGRES_USER: /run/secrets/postgres_user
       POSTGRES_PASSWORD: /run/secrets/postgres_passwd
+    volumes:
+      - ./api:/api
     ports:
       - 2345:2345
     networks:
-      - postgres
+      - postgres-net
       - traefik-public
     labels:
       - "traefik.enable=true"
@@ -123,10 +125,10 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - postgres-db:/var/lib/postgresql/data
       - ./api/scripts/:/docker-entrypoint-initdb.d/
     networks:
-      - postgres
+      - postgres-net
 
   pgadmin:
     image: dpage/pgadmin4
@@ -137,7 +139,7 @@ services:
     depends_on:
       - db
     networks:
-      - postgres
+      - postgres-net
       - traefik-public
     labels:
       - "traefik.enable=true"
@@ -148,11 +150,11 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres:
+  postgres-db:
     external: true
 
 networks:
-  postgres:
+  postgres-net:
     external: true
   traefik-public:
     external: true

@@ -23,16 +23,16 @@ ifeq (,$(findstring traefik-public,$(NETWORKS)))
 endif
 
 postgres-network:
-ifeq (,$(findstring postgres,$(NETWORKS)))
+ifeq (,$(findstring postgres-net,$(NETWORKS)))
 	@echo [ creating postgres network... ]
-	docker network create postgres
+	docker network create postgres-net
 	@echo $(SUCCESS)
 endif
 
 postgres-volume:
-ifeq (,$(findstring postgres,$(VOLUMES)))
+ifeq (,$(findstring postgres-db,$(VOLUMES)))
 	@echo [ creating postgres volume... ]
-	docker volume create postgres
+	docker volume create postgres-db
 	@echo $(SUCCESS)
 endif
 
@@ -67,13 +67,9 @@ debug-api:
 	docker-compose up traefik debug-api db pgadmin
 
 debug-db:
-	@echo [ debugging postgres database... ]
-	@# basic command line interface for postgres 
-	@# make exec user="$(POSTGRES_USER)" service="db" cmd="bash -c 'psql --dbname $(POSTGRES_DB)'"
-
 	@# advanced command line interface for postgres
 	@# includes auto-completion and syntax highlighting. https://www.pgcli.com/
-	@docker run -it --rm --net postgres dencold/pgcli postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)
+	@docker run -it --rm --net postgres-net dencold/pgcli postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)
 
 dump:
 	@echo [ dumping postgres backup for $(POSTGRES_DB)... ]
