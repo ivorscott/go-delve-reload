@@ -1,6 +1,7 @@
 .vscode/settings.json
 /secrets
 /api/init/backup.sql
+/api/__debug_bin
 main
 c.out
 coverage.html
