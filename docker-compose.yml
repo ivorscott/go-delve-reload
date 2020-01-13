@@ -17,6 +17,7 @@ services:
       - 443:443
       - 8080:8080
     volumes:
+      # Required for Traefik to listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
     networks:
@@ -105,6 +106,8 @@ services:
       - "traefik.http.routers.debug-api.rule=Host(`debug.api.local`)"
       - "traefik.http.routers.debug-api.entrypoints=websecure"
       - "traefik.http.services.debug-api.loadbalancer.server.port=8888"
+      # run a container without the default seccomp profile
+      # https://github.com/go-delve/delve/issues/515
     security_opt:
       - "seccomp:unconfined"
     tty: true
