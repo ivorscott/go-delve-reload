@@ -2,7 +2,7 @@
 
 ### The Ultimate Go and React Development Setup with Docker
 
-This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-development-with-docker). If you follow along, the project starter is available under the `starter` branch.
+This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker). If you follow along, the project starter is available under the `starter` branch.
 
 ## Contents
 
