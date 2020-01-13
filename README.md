@@ -7,13 +7,14 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 ## Contents
 
 - VSCode Setup
+- Docker Basics
 - Multi-stage Builds
 - Docker Compose
 - Using Makefiles
-- Postgres
-- Traefik
-- Live Reloading
-- Debugging
+- Using Postgres
+- Using Traefik
+- Live Reloading a Go API
+- Delve Debugging a Go API
 - Testing
 
 ### Folder structure
