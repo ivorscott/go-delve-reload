@@ -38,11 +38,12 @@ FROM base as prod
 COPY --from=build-stage /api/main main
 
 RUN addgroup gopher && adduser -D -G gopher gopher \
-    && chown -R gopher:gopher /api
+    && chown -R gopher:gopher /api && \
+    chmod +x ./main
 
 USER gopher
 
 EXPOSE 4000
-HEALTHCHECK CMD [ "wget", "-q", "localhost:4000" ]
+HEALTHCHECK CMD [ "wget", "-q", "0.0.0.0:4000" ]
 
 CMD ["./main"]
