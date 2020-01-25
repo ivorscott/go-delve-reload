@@ -42,6 +42,7 @@ services:
       - postgres_passwd
     environment:
       ADDR_PORT: 4000
+      CGO_ENABLED: 0
       POSTGRES_HOST: db
       POSTGRES_DB: /run/secrets/postgres_db
       POSTGRES_USER: /run/secrets/postgres_user

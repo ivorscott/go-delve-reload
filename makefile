@@ -56,11 +56,11 @@ exec:
 
 test-client:
 	@echo [ running client tests... ]
-	@make exec service="client" cmd="npm test"
+	docker-compose run client npm test 
 
 test-api:
 	@echo [ running api tests... ]
-	@make exec service="api" cmd="go test -v ./..."
+	docker-compose run api go test -v ./...
 
 debug-api:
 	@echo [ debugging api... ]
