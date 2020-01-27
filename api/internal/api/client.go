@@ -2,16 +2,19 @@ package api
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/ivorscott/go-delve-reload/internal/models/postgres"
 	"github.com/ivorscott/go-delve-reload/pkg/secrets"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
-	"log"
-	"net/http"
-	"os"
 )
 
 type application struct {
+	audience string
+	domain   string
 	errorLog *log.Logger
 	infoLog  *log.Logger
 	products *postgres.ProductModel
@@ -23,6 +26,8 @@ func Client() {
 	dbname, _ := dockerSecrets.Get("postgres_db")
 	dbuser, _ := dockerSecrets.Get("postgres_user")
 	dbpass, _ := dockerSecrets.Get("postgres_passwd")
+	audience, _ := dockerSecrets.Get("auth0_audience")
+	domain, _ := dockerSecrets.Get("auth0_domain")
 
 	addr := ":" + os.Getenv("ADDR_PORT")
 	dbhost := os.Getenv("POSTGRES_HOST")
@@ -48,6 +53,8 @@ func Client() {
 	defer dbase.Close()
 
 	app := &application{
+		audience: audience,
+		domain:   domain,
 		errorLog: errorLog,
 		infoLog:  infoLog,
 		products: &postgres.ProductModel{DB: db},
@@ -59,6 +66,7 @@ func Client() {
 	}
 
 	infoLog.Printf("[ Starting server on %s ]", addr)
+
 	err = server.ListenAndServe()
 	errorLog.Fatal(err)
 }

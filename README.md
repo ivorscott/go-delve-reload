@@ -74,6 +74,12 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 
 - Docker
 - VSCode
+- An Auth0 account
+- Postman or curl
+
+1. Create an Auth0 account
+2. Register a Single Page Application (SPA) in Auth0
+3. Register an API in Auth0
 
 ### Usage
 
@@ -82,6 +88,9 @@ Add the following secret files:
 
 ```
 └── secrets
+   ├── auth0_audience ( * new )
+   ├── auth0_client   ( * new )
+   ├── auth0_domain   ( * new )
    ├── postgres_db
    ├── postgres_passwd
    └── postgres_user

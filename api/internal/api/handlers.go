@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// home displays a welcome message
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	_, err := w.Write([]byte(fmt.Sprintf("Hello there.. %q", html.EscapeString(r.URL.Path))))
 	if err != nil {
@@ -14,6 +15,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// showProducts displays products from the database
 func (app *application) showProducts(w http.ResponseWriter, r *http.Request) {
 	products := app.products.GetAll()
 

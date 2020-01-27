@@ -8,6 +8,7 @@ class App extends React.Component {
   };
 
   componentDidMount = async () => {
+    console.log(process.env);
     try {
       const response = await fetch(`https://api.local/products`);
       const json = await response.json();
