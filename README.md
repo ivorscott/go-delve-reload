@@ -1,8 +1,8 @@
 # go-delve-reload (Part 2)
 
-### Deploying Auth0 Apps with Swarm, Traefik, Portainer and Drone
+### The Ultimate Go and React Production Setup with Docker
 
-This repository is paired with a [blog post](https://blog.ivorscott.com/#coming-soon). If you follow along, the project starter is available under the `auth0_starter` branch.
+This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-production-setup-with-docker). If you follow along, the project starter is available under the `auth0_starter` branch.
 
 ## Contents
 
