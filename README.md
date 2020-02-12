@@ -1,21 +1,31 @@
-# go-delve-reload
+# go-delve-reload (Part 2)
 
-### The Ultimate Go and React Development Setup with Docker
+### Deploying Auth0 Apps with Swarm, Traefik, Portainer and Drone
 
-This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker). If you follow along, the project starter is available under the `starter` branch.
+This repository is paired with a [blog post](https://blog.ivorscott.com/#coming-soon). If you follow along, the project starter is available under the `auth0_starter` branch.
 
 ## Contents
 
-- VSCode Setup
-- Docker Basics
-- Multi-stage Builds
-- Docker Compose
-- Using Makefiles
-- Using Postgres
-- Using Traefik
-- Live Reloading a Go API
-- Delve Debugging a Go API
-- Testing
+- React
+- Go
+- OAuth
+- Auth0
+- Swarm
+- Digital Ocean
+- Traefik
+- Portainer
+- Drone
+
+### Requirements
+
+- VSCode
+- Postman
+- Docker
+- Docker Machine
+- Auth0 Account
+- DockerHub Account
+- Digital Ocean Account
+- Domain Name
 
 ### Folder structure
 
@@ -52,7 +62,10 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 |  ├── README.md
 |  ├── package-lock.json
 |  ├── package.json
+|  ├── config
+|  ├── nginx
 |  ├── public
+|  ├── scripts
 |  └── src
 |     ├── App.css
 |     ├── App.js
@@ -65,21 +78,13 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 ├── docker-compose.yml
 ├── makefile
 └── secrets
+   ├── auth0_audience
+   ├── auth0_client
+   ├── auth0_domain
    ├── postgres_db
    ├── postgres_passwd
    └── postgres_user
 ```
-
-### Requirements
-
-- Docker
-- VSCode
-- An Auth0 account
-- Postman or curl
-
-1. Create an Auth0 account
-2. Register a Single Page Application (SPA) in Auth0
-3. Register an API in Auth0
 
 ### Usage
 
