@@ -1,8 +1,12 @@
 **/*/.vscode/settings.json
 .vscode/settings.json
 /secrets
-/api/init/backup.sql
+/api/internal/mid/auth.go
+/api/internal/schema/migrations/
+/api/internal/schema/products.sql
 /api/__debug_bin
+/api/tls/*
+.env
 main
 c.out
 coverage.html

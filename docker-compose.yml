@@ -1,128 +1,65 @@
 version: "3.7"
-services:
-  traefik:
-    image: traefik:v2.1.2
-    container_name: traefik
-    command:
-      - "--api.insecure=true" # Not For Production
-      - "--api.debug=true"
-      - "--log.level=DEBUG"
-      - "--providers.docker"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=traefik-public"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-    ports:
-      - 80:80
-      - 443:443
-      - 8080:8080
-    volumes:
-      # Required for Traefik to listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock:ro
 
-    networks:
-      - traefik-public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.api.local`)"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.entrypoints=web"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https@docker"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+services:
   api:
     build:
       context: ./api
       target: dev
     container_name: api
-    secrets:
-      - postgres_db
-      - postgres_user
-      - postgres_passwd
-      - auth0_domain
-      - auth0_audience
     environment:
-      ADDR_PORT: 4000
       CGO_ENABLED: 0
-      POSTGRES_HOST: db
-      POSTGRES_DB: /run/secrets/postgres_db
-      POSTGRES_USER: /run/secrets/postgres_user
-      POSTGRES_PASSWORD: /run/secrets/postgres_passwd
-      AUTH0_DOMAIN: /run/secrets/auth0_domain
-      AUTH0_AUDIENCE: /run/secrets/auth0_audience
+      API_DB_HOST: db
+      API_DB_DISABLE_TLS: "true"
+      API_WEB_PRODUCTION: "false"
+      API_WEB_ADDRESS: :$API_PORT
+      API_WEB_READ_TIMEOUT: 7s
+      API_WEB_WRITE_TIMEOUT: 7s
+      API_WEB_SHUTDOWN_TIMEOUT: 7s
+      API_WEB_FRONTEND_ADDRESS: https://localhost:$CLIENT_PORT
+    ports:
+      - $API_PORT:$API_PORT
     volumes:
       - ./api:/api
     networks:
       - postgres-net
-      - traefik-public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.tls=true"
-      - "traefik.http.routers.api.rule=Host(`api.local`)"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.services.api.loadbalancer.server.port=4000"
-    command: CompileDaemon --build="go build -o main ./cmd/api" --command=./main
+    # command: go run ./cmd/api
+    command: CompileDaemon --build="go build -o main ./cmd/api" -log-prefix=false --command=./main
 
   client:
     build:
       context: ./client
       target: dev
     container_name: client
-    secrets:
-      - auth0_domain
-      - auth0_client
-      - auth0_audience
     environment:
-      REACT_APP_API_URL: https://api.local
-      REACT_APP_AUTH0_DOMAIN: /run/secrets/auth0_domain
-      REACT_APP_AUTH0_AUDIENCE: /run/secrets/auth0_audience
-      REACT_APP_AUTH0_CLIENT_ID: /run/secrets/auth0_client
-      REACT_APP_AUTH0_CALLBACK_URL: https://client.local/callback
+      REACT_APP_API_URL: https://localhost:$API_PORT/v1
     ports:
-      - 3000:3000
+      - $CLIENT_PORT:$CLIENT_PORT
     volumes:
       - ./client:/client/app
       - /client/app/node_modules
-    networks:
-      - traefik-public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.client.tls=true"
-      - "traefik.http.routers.client.rule=Host(`client.local`)"
-      - "traefik.http.routers.client.entrypoints=websecure"
-      - "traefik.http.services.client.loadbalancer.server.port=3000"
 
   debug-api:
     build:
       context: ./api
       target: dev
     container_name: debug-api
-    secrets:
-      - postgres_db
-      - postgres_user
-      - postgres_passwd
     environment:
-      ADDR_PORT: 8888
-      POSTGRES_HOST: db
-      POSTGRES_DB: /run/secrets/postgres_db
-      POSTGRES_USER: /run/secrets/postgres_user
-      POSTGRES_PASSWORD: /run/secrets/postgres_passwd
-      AUTH0_DOMAIN: /run/secrets/auth0_domain
-      AUTH0_AUDIENCE: /run/secrets/auth0_audience
+      CGO_ENABLED: 0
+      API_DB_HOST: db
+      API_DB_DISABLE_TLS: "true"
+      API_WEB_PRODUCTION: "false"
+      API_WEB_ADDRESS: :8888
+      API_WEB_READ_TIMEOUT: 7s
+      API_WEB_WRITE_TIMEOUT: 7s
+      API_WEB_SHUTDOWN_TIMEOUT: 7s
+      API_WEB_FRONTEND_ADDRESS: "https://localhost:3000"
     volumes:
       - ./api:/api
     ports:
       - 2345:2345
+      - 8888:8888
     networks:
       - postgres-net
-      - traefik-public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.debug-api.tls=true"
-      - "traefik.http.routers.debug-api.rule=Host(`debug.api.local`)"
-      - "traefik.http.routers.debug-api.entrypoints=websecure"
-      - "traefik.http.services.debug-api.loadbalancer.server.port=8888"
       # run a container without the default seccomp profile
       # https://github.com/go-delve/delve/issues/515
     security_opt:
@@ -134,61 +71,13 @@ services:
   db:
     image: postgres:11.6
     container_name: db
-    secrets:
-      - postgres_db
-      - postgres_user
-      - postgres_passwd
-    environment:
-      POSTGRES_DB_FILE: /run/secrets/postgres_db
-      POSTGRES_USER_FILE: /run/secrets/postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_passwd
     ports:
       - 5432:5432
     volumes:
-      - postgres-db:/var/lib/postgresql/data
-      - ./api/scripts/:/docker-entrypoint-initdb.d/
+      - /seed
     networks:
       - postgres-net
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: test@example.com
-      PGADMIN_DEFAULT_PASSWORD: "SuperSecret"
-    depends_on:
-      - db
-    networks:
-      - postgres-net
-      - traefik-public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pgadmin.tls=true"
-      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.local`)"
-      - "traefik.http.routers.pgadmin.entrypoints=websecure"
-      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
-    restart: unless-stopped
-
-volumes:
-  postgres-db:
-    external: true
 
 networks:
   postgres-net:
     external: true
-  traefik-public:
-    external: true
-
-secrets:
-  postgres_db:
-    file: ./secrets/postgres_db
-  postgres_passwd:
-    file: ./secrets/postgres_passwd
-  postgres_user:
-    file: ./secrets/postgres_user
-  auth0_domain:
-    file: ./secrets/auth0_domain
-  auth0_audience:
-    file: ./secrets/auth0_audience
-  auth0_client:
-    file: ./secrets/auth0_client

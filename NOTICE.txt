@@ -1,0 +1,30 @@
+backend inspired by ardanlabs service training
+    
+- https://github.com/ardanlabs/service-training
+
+includes strategies and code on:
+
+- graceful shutdown
+- seeding & migrations
+- package oriented design
+- error handling
+- middleware
+- cancellation
+- request validation
+- request logging
+- self shutdown
+
+significant changes include:
+
+- removed original tracing implementation
+- removed original auth implementation
+- removed original seeding and migrations implementation
+- added multi-stage dockerfiles
+- added docker secrets opt-in
+- added self-signed certificates
+- added makefile utility
+- added frontend application
+- added custom docker-compose file
+- added live reload opt-in
+- added delve debugging opt-in
+- added pgcli opt-in

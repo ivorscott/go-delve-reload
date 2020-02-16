@@ -10,7 +10,7 @@ class App extends React.Component {
   componentDidMount = async () => {
     console.log(process.env);
     try {
-      const response = await fetch(`https://api.local/products`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/products`);
       const json = await response.json();
       this.setState(() => ({ products: json }));
     } catch (error) {}

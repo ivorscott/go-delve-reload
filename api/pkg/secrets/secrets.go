@@ -27,11 +27,8 @@ func (ds *DockerSecrets) GetDir() string {
 }
 
 // Get returns one secret by secretName
-func (ds *DockerSecrets) Get(secretName string) (string, error) {
-	if _, ok := ds.secrets[secretName]; !ok {
-		return "", fmt.Errorf("secret not exsist: %s", secretName)
-	}
-	return ds.secrets[secretName], nil
+func (ds *DockerSecrets) Get(secretName string) string {
+	return ds.secrets[secretName]
 }
 
 // Reads all secrets on the specified path in the secretsDir
