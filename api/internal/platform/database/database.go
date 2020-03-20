@@ -20,8 +20,9 @@ type Config struct {
 }
 
 type Repository struct {
-	DB *sqlx.DB
-	SQ squirrel.StatementBuilderType
+	DB  *sqlx.DB
+	SQ  squirrel.StatementBuilderType
+	URL url.URL
 }
 
 // NewRepository creates a new Directory, connecting it to the postgres server
@@ -53,8 +54,9 @@ func NewRepository(cfg Config) (*Repository, error) {
 	}
 
 	return &Repository{
-		DB: db,
-		SQ: squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(db),
+		DB:  db,
+		SQ:  squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).RunWith(db),
+		URL: u,
 	}, nil
 
 }

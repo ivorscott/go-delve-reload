@@ -1,8 +1,9 @@
 backend inspired by ardanlabs service training
-    
-- https://github.com/ardanlabs/service-training
 
-includes strategies and code on:
+https://github.com/ardanlabs/service-training
+https://education.ardanlabs.com/
+
+strategies include:
 
 - graceful shutdown
 - seeding & migrations
@@ -18,10 +19,12 @@ significant changes include:
 
 - removed original tracing implementation
 - removed original auth implementation
-- removed original seeding and migrations implementation
+- added seeding and migrations with go migrate
+- added integration tests using testcontainers-go
 - added multi-stage dockerfiles
 - added docker secrets opt-in
 - added self-signed certificates
+- added cors library
 - added makefile utility
 - added frontend application
 - added custom docker-compose file

@@ -255,20 +255,25 @@ POSTGRES_HOST=db
 POSTGRES_NET=postgres-net
 ```
 
-2 - Unblock the standard 5432 port for postgres
+2 - Unblock port 5432 for postgres
 
 The makefile commands and our docker-compose yaml file reference the standard 5432 port for postgres.
-Before continuing, close all existing postgres connections. If you're using homebrew it can be done like this:
+Before continuing, close all existing postgres connections.
+
+With homebrew for example, if you installed `postgresql@10` execute
+`brew info postgresql@10` to generate information on how to start/stop the service. If you don't know what version you installed run `brew list`.
+
+For example, on my machine I did:
 
 ```bash
-brew services stop postgres
-killall postgres
+pg_ctl -D /usr/local/var/postgresql@10 stop
+killall postgresql
 ```
 
 3 - Create self-signed certificates
 
 ```makefile
-make # adds generated certs to ./api/tls/
+make cert # moves generated certs to ./api/tls/
 ```
 
 4 - Setup up the Postgres container
@@ -339,10 +344,10 @@ Next we need to seed the database:
 make seed products
 ```
 
-This adds an empty products.sql seed file found under `./api/internal/schema/`. Add some rows:
+This adds an empty products.sql seed file found under `./api/internal/schema/seeds`. Add some rows:
 
 ```sql
--- ./api/internal/schema/products.sql
+-- ./api/internal/schema/seeds/products.sql
 
 INSERT INTO products (id, name, price, description) VALUES
 ('cbef5139-323f-48b8-b911-dc9be7d0bc07','Xbox One X', 499.00, 'Eighth-generation home video game console developed by Microsoft.'),

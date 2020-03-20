@@ -3,7 +3,7 @@
 /secrets
 /api/internal/mid/auth.go
 /api/internal/schema/migrations/
-/api/internal/schema/products.sql
+/api/internal/schema/seeds/products.sql
 /api/__debug_bin
 /api/tls/*
 .env

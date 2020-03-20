@@ -6,6 +6,7 @@ GOROOT=$(shell go env GOROOT)
 NETWORKS="$(shell docker network ls)"
 VOLUMES="$(shell docker volume ls)"
 SCHEMA_DIR=api/internal/schema
+SEED_DIR=$(SCHEMA_DIR)/seeds
 MIGRATION_DIR=$(SCHEMA_DIR)/migrations
 MIGRATIONS_VOLUME= $(PWD)/$(MIGRATION_DIR):/migrations
 USER_PASS_HOST=$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST)
@@ -186,9 +187,10 @@ seed:
 	
 	@echo [ generating seed file ... ]
 	@echo
-	@echo file: $(SCHEMA_DIR)/$(name).sql
+	@echo file: $(SEED_DIR)/$(name).sql
 	@echo
-	@touch $(PWD)/$(SCHEMA_DIR)/$(name).sql \
+	@mkdir -p $(PWD)/$(SEED_DIR)
+	@touch $(PWD)/$(SEED_DIR)/$(name).sql \
 	&& echo $(SUCCESS)
 
 insert:
@@ -198,7 +200,7 @@ insert:
 
 	@echo [ inserting $(name) seed data ... ]
 	@echo
-	@docker cp $(PWD)/$(SCHEMA_DIR)/$(name).sql $(shell docker-compose ps -q db):/seed/$(name).sql \
+	@docker cp $(PWD)/$(SEED_DIR)/$(name).sql $(shell docker-compose ps -q db):/seed/$(name).sql \
 	&& docker exec -u root db psql $(POSTGRES_DB) $(POSTGRES_USER) -f /seed/$(name).sql \
 	&& echo \
 	&& echo $(SUCCESS)
