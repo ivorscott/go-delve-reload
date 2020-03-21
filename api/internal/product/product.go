@@ -86,7 +86,7 @@ func Create(ctx context.Context, repo *database.Repository, np NewProduct, now t
 		Name:        np.Name,
 		Price:       np.Price,
 		Description: np.Description,
-		Created:     now,
+		Created:     now.UTC(),
 		Tags:        np.Tags,
 	}
 

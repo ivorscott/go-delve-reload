@@ -104,7 +104,8 @@ test-client:
 
 test-api:
 	@echo [ running api tests ... ]
-	@docker-compose run api go test -v ./...
+	@cd api; go test -v ./...
+	@cd ..
 
 debug-api:
 	@echo [ debugging api ... ]

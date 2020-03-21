@@ -6,6 +6,7 @@ require (
 	github.com/GuiaBolso/darwin v0.0.0-20191218124601-fd6d2aa3d244
 	github.com/Masterminds/squirrel v1.2.0
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/docker/go-connections v0.4.0
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
@@ -21,6 +22,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.11.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
+	github.com/testcontainers/testcontainers-go v0.3.1
 	go.opencensus.io v0.22.3
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect

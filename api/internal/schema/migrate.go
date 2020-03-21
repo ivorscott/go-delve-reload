@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -20,15 +19,10 @@ var (
 	ErrLockTimeout    = errors.New("timeout: can't acquire database lock")
 )
 
-const dest = "/internal/schema/migrations"
+const dest = "/migrations"
 
 func Migrate(dbname string, url string) error {
-	path, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	src := fmt.Sprintf("file://%s%s", path, dest)
+	src := fmt.Sprintf("file://%s%s", RootDir(), dest)
 	m, err := migrate.New(src, url)
 	if err != nil {
 		log.Fatal(err)

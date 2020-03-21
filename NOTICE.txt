@@ -19,7 +19,7 @@ significant changes include:
 
 - removed original tracing implementation
 - removed original auth implementation
-- added seeding and migrations with go migrate
+- added seeding and migrations with go-migrate
 - added integration tests using testcontainers-go
 - added multi-stage dockerfiles
 - added docker secrets opt-in

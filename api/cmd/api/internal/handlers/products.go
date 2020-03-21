@@ -25,7 +25,7 @@ func (p *Products) List(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return web.Respond(r.Context(), w, list, http.StatusCreated)
+	return web.Respond(r.Context(), w, list, http.StatusOK)
 }
 
 // Retrieve a single Product

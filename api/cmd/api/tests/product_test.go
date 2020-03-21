@@ -1,50 +1,129 @@
 package tests
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
+	"time"
 
-	// NOTE: Models should not be imported, we want to test the exact JSON. We
-	// make the comparison process easier using the go-cmp library.
+	"github.com/docker/go-connections/nat"
+	"github.com/ivorscott/go-delve-reload/cmd/api/internal/handlers"
+	"github.com/ivorscott/go-delve-reload/internal/schema"
+	_ "github.com/lib/pq"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/ivorscott/go-delve-reload/internal/platform/conf"
+	"github.com/ivorscott/go-delve-reload/internal/platform/database"
+	tc "github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-// TestProducts runs a series of tests to exercise Product behavior from the
-// API level. The subtests all share the same database and application for
-// speed and convenience. The downside is the order the tests are ran matters
-// and one test may break if other tests are not ran before it. If a particular
-// subtest needs a fresh instance of the application it can make it or it
-// should be its own Test* function.
+var cfg struct {
+	Web struct {
+		Address         string        `conf:"default:localhost:4000"`
+		Production      bool          `conf:"default:false"`
+		ReadTimeout     time.Duration `conf:"default:5s"`
+		WriteTimeout    time.Duration `conf:"default:5s"`
+		ShutdownTimeout time.Duration `conf:"default:5s"`
+		FrontendAddress string        `conf:"default:https://localhost:3000"`
+	}
+	DB struct {
+		User       string `conf:"default:postgres"`
+		Password   string `conf:"default:postgres,noprint"`
+		Host       string `conf:"default:localhost"`
+		Name       string `conf:"default:postgres"`
+		DisableTLS bool   `conf:"default:true"`
+	}
+}
+
 func TestProducts(t *testing.T) {
-	// 1. CREATE new test container db for products
+	log := log.New(os.Stderr, "TEST : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 
-	// db, teardown := tests.NewUnit(t)
-	// defer teardown()
+	log.Println("Starting postgres container...")
 
-	// 2. MIGRATE to latest
+	if err := conf.Parse(os.Args[1:], "API", &cfg); err != nil {
+		if err == conf.ErrHelpWanted {
+			usage, err := conf.Usage("API", &cfg)
+			if err != nil {
+				log.Fatal(err, "generating usage")
+			}
+			fmt.Println(usage)
+		}
+		log.Fatal(err, "error: parsing config")
+	}
 
-	// 3. SEED database
+	// Background returns a non-nil, empty Context. It is never canceled, has no values, and has no deadline.
+	// It is typically used by the main function, initialization, and tests, and as the top-level Context for incoming requests.
+	ctx := context.Background()
 
-	// if err := schema.Seed(db); err != nil {
-	// 	t.Fatal(err)
-	// }
+	// Port is a string containing port number and protocol in the format "80/tcp"
+	postgresPort := nat.Port("5432/tcp")
 
-	// 4. CREATE Test logger for application tests
+	// ContainerRequest represents the parameters used to get a running container
+	req := tc.ContainerRequest{
+		Image:        "postgres",
+		ExposedPorts: []string{postgresPort.Port()},
+		Env: map[string]string{
+			"POSTGRES_PASSWORD": cfg.DB.Password,
+			"POSTGRES_USER":     cfg.DB.User,
+		},
+		WaitingFor: wait.ForAll(
+			wait.ForLog("database system is ready to accept connections"),
+			wait.ForListeningPort(postgresPort),
+		),
+	}
 
-	// log := log.New(os.Stderr, "TEST : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	// GenericContainer creates a generic container with parameters
+	postgres, err := tc.GenericContainer(ctx, tc.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true, // auto-start the container
+	})
+	if err != nil {
+		t.Fatal("start:", err)
+	}
 
-	// 5. CREATE application handler for tests
+	// MappedPort gets the externally mapped port for the container
+	hostPort, err := postgres.MappedPort(ctx, postgresPort)
+	if err != nil {
+		log.Fatal("map:", err)
+	}
 
-	// tests := ProductTests{app: handlers.API(db, log)}
+	repo, err := database.NewRepository(database.Config{
+		User:       cfg.DB.User,
+		Host:       cfg.DB.Host + ":" + hostPort.Port(),
+		Name:       cfg.DB.Name,
+		Password:   cfg.DB.Password,
+		DisableTLS: cfg.DB.DisableTLS,
+	})
+	if err != nil {
+		t.Fatal(err, "connecting to db")
+	}
+	defer repo.Close()
 
-	// 6. TEST individual handlers
-	// t.Run("List", tests.List)
-	// t.Run("ProductCRUD", tests.ProductCRUD)
+	log.Printf("Postgres container started, running at:  %s\n", repo.URL.String())
+
+	if err := schema.Migrate("postgres", repo.URL.String()); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := schema.Seed(repo.DB, "products"); err != nil {
+		t.Fatal(err)
+	}
+
+	shutdown := make(chan os.Signal, 1)
+
+	// create application handler
+	tests := ProductTests{app: handlers.API(shutdown, repo, log, cfg.Web.FrontendAddress)}
+
+	// test handlers
+	t.Run("List", tests.List)
+	t.Run("ProductCRUD", tests.ProductCRUD)
 }
 
 // ProductTests holds methods for each product subtest. This type allows
@@ -54,7 +133,6 @@ type ProductTests struct {
 	app http.Handler
 }
 
-// THE PRODUCT TESTS GO HERE
 func (p *ProductTests) List(t *testing.T) {
 	req := httptest.NewRequest("GET", "/v1/products", nil)
 	resp := httptest.NewRecorder()
@@ -72,20 +150,28 @@ func (p *ProductTests) List(t *testing.T) {
 
 	want := []map[string]interface{}{
 		{
-			"id":          "a2b0639f-2cc6-44b8-b97b-15d69dbb511e",
-			"name":        "Some Old Console",
-			"price":       float64(50),
-			"description": "some description",
+			"id":          "cbef5139-323f-48b8-b911-dc9be7d0bc07",
+			"name":        "Xbox One X",
+			"price":       float64(499),
+			"description": "Eighth-generation home video game console developed by Microsoft.",
 			"created":     "2019-01-01T00:00:01.000001Z",
-			"tags":        "",
+			"tags":        nil,
 		},
 		{
-			"id":          "72f8b983-3eb4-48db-9ed0-e45cc6bd716b",
-			"name":        "Some New Console",
-			"price":       float64(750),
-			"description": "some description",
-			"created":     "2019-01-01T00:00:02.000001Z",
-			"tags":        "",
+			"id":          "ce93a886-3a0e-456b-b7f5-8652d2de1e8f",
+			"name":        "Playsation 4",
+			"price":       float64(299),
+			"description": "Eighth-generation home video game console developed by Sony Interactive Entertainment.",
+			"created":     "2019-01-01T00:00:01.000001Z",
+			"tags":        nil,
+		},
+		{
+			"id":          "faa25b57-7031-4b37-8a89-de013418deb0",
+			"name":        "Nintendo Switch",
+			"price":       float64(299),
+			"description": "Hybrid console that can be used as a stationary and portable device developed by Nintendo.",
+			"created":     "2019-01-01T00:00:01.000001Z",
+			"tags":        nil,
 		},
 	}
 
@@ -124,9 +210,10 @@ func (p *ProductTests) ProductCRUD(t *testing.T) {
 		want := map[string]interface{}{
 			"id":          created["id"],
 			"created":     created["created"],
-			"name":        "product0",
-			"price":       float64(55),
+			"name":        "Some product",
+			"price":       float64(750),
 			"description": "some description",
+			"tags":        nil,
 		}
 
 		if diff := cmp.Diff(want, created); diff != "" {
