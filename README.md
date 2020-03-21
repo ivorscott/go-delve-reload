@@ -1,10 +1,10 @@
-# go-delve-reload (work in progress)
+# go-delve-reload
 
 ## The Ultimate Go and React Development Setup with Docker (Part 2)
 
 ### Building A Complete Example
 
-This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part2). If you follow along, the project starter is available under the `part2_starter` branch.
+This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part2). If you follow along, the project starter is available under the `part2_starter` branch. Part 2 is heavily influenced by [Ardan labs service training](https://github.com/ardanlabs/service-training). I highly recommend their [courses](https://education.ardanlabs.com/).
 
 [Previous blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker)
 
@@ -349,10 +349,10 @@ This adds an empty products.sql seed file found under `./api/internal/schema/see
 ```sql
 -- ./api/internal/schema/seeds/products.sql
 
-INSERT INTO products (id, name, price, description) VALUES
-('cbef5139-323f-48b8-b911-dc9be7d0bc07','Xbox One X', 499.00, 'Eighth-generation home video game console developed by Microsoft.'),
-('ce93a886-3a0e-456b-b7f5-8652d2de1e8f','Playsation 4', 299.00, 'Eighth-generation home video game console developed by Sony Interactive Entertainment.'),
-('faa25b57-7031-4b37-8a89-de013418deb0','Nintendo Switch', 299.00, 'Hybrid console that can be used as a stationary and portable device developed by Nintendo.')
+INSERT INTO products (id, name, price, description, created) VALUES
+('cbef5139-323f-48b8-b911-dc9be7d0bc07','Xbox One X', 499.00, 'Eighth-generation home video game console developed by Microsoft.','2019-01-01 00:00:01.000001+00'),
+('ce93a886-3a0e-456b-b7f5-8652d2de1e8f','Playsation 4', 299.00, 'Eighth-generation home video game console developed by Sony Interactive Entertainment.','2019-01-01 00:00:01.000001+00'),
+('faa25b57-7031-4b37-8a89-de013418deb0','Nintendo Switch', 299.00, 'Hybrid console that can be used as a stationary and portable device developed by Nintendo.','2019-01-01 00:00:01.000001+00')
 ON CONFLICT DO NOTHING;
 ```
 
