@@ -10,9 +10,7 @@ body {
   box-sizing: border-box;
   // https://css-tricks.com/snippets/css/font-shorthand/
   font: normal 400 24px/1.7 "Lato", Helvetica, sans-serif;
-  background: #000;
   color: #777;
-  padding: 30px;
 }
 
 .header {
@@ -20,8 +18,8 @@ body {
   height: 85vh;
   background-image: linear-gradient(
       to right bottom,
-      rgba(126, 2123, 111, 0.8),
-      rgba(209, 73, 31, 0.6)
+      rgba(126, 212, 111, 0.8),
+      rgba(209, 73, 31, 0.8)
     ),
     url("http://getwallpapers.com/wallpaper/full/d/3/a/547521.jpg");
   background-size: cover;
@@ -133,54 +131,13 @@ body {
   }
 }
 
-.products-feature {
+.main {
   position: relative;
-  top: -650px;
-  margin: 100px;
+  top: -500px;
+  text-align: center;
   color: #fff;
-
-  header {
-    font-size: 36px;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 46px;
-  }
-
-  .products {
-    display: flex;
-    flex: 1;
-    justify-content: center;
-    &__card {
-      width: 100%;
-      min-height: 300px;
-      max-width: 300px;
-      margin: 10px;
-      padding: 12px;
-      background-color: #fff;
-      border-radius: 8px;
-      color: #444;
-      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25),
-        0 10px 10px rgba(0, 0, 0, 0.22);
-    }
-    .a {
-      position: relative;
-      top: 0px;
-      animation: moveInBottom 0.65s ease-out 1s;
-      animation-fill-mode: backwards;
-    }
-    .b {
-      position: relative;
-      top: 40px;
-      animation: moveInBottom 0.65s ease-out 1.2s;
-      animation-fill-mode: backwards;
-    }
-    .c {
-      position: relative;
-      top: 80px;
-      animation: moveInBottom 0.65s ease-out 1.4s;
-      animation-fill-mode: backwards;
-    }
-  }
+  animation: moveInBottom 0.65s ease-out 1.4s;
+  animation-fill-mode: backwards;
 }
 
 @keyframes moveInLeft {

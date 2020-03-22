@@ -27,7 +27,11 @@ class App extends React.Component<{}, State> {
           subtitle="Second hand games"
           callToActionText="Sign Up"
         />
-        <Products products={this.state.products} />
+        <div className="main">
+          <h1>The Best Prices</h1>
+          <h3>Gaming Is Our Passion. Get 20% Off Any 2nd Purchase!</h3>
+          <Products products={this.state.products} />
+        </div>
       </div>
     );
   }

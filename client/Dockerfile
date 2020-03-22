@@ -7,74 +7,69 @@ WORKDIR /client
 # 3. Copy both package.json and package-lock.json into /client in the image's filesystem
 COPY package*.json ./
 
-# 4. Install only the production node_modules and clean up the cache
-RUN npm ci \
-    && npm cache clean --force
-
-# 5. Extend the base stage and create a new stage named dev
+# 4. Extend the base stage and create a new stage named dev
 FROM base as dev
 
-# 6. Set the NODE_ENV and PATH Environment variables
+# 5. Set the NODE_ENV and PATH Environment variables
 ENV NODE_ENV=development
 ENV PATH /client/node_modules/.bin:$PATH
 
-# 7. Provide meta data about the port the container must expose
+# 6. Provide meta data about the port the container must expose
 EXPOSE 3000
 
-# 8. Create a new /app directory in /client
+# 7. Create a new /app directory in /client
 RUN mkdir /client/app
 
-# 9. Install development dependencies
-RUN npm i --only=development \
-    && npm cache clean --force
+# 8. Install development dependencies
+RUN npm install && npm cache clean --force
 
-# 10. Print npm configuration for debugging purposes
+# 9. Print npm configuration for debugging purposes
 RUN npm config list
 
-# 11. Set the working directory to /client/app
+# 10. Set the working directory to /client/app
 WORKDIR /client/app
 
-# 12. Provide the default command for the development container
+# 11. Provide the default command for the development container
 CMD ["npm", "run", "start"]
 
-# 13. Extend the dev stage and create a new stage called test
+# 12. Extend the dev stage and create a new stage called test
 FROM dev as test
 
-# 14. Copy the remainder of the client folder source code into the image's filesystem
+# 13. Copy the remainder of the client folder source code into the image's filesystem
 COPY . .
 
-# 15. Run node_module vulnerability checks
+# 14. Run node_module vulnerability checks
 RUN npm audit
 
-# 16. Run unit tests in CI
+# 15. Run unit tests in CI
 RUN CI=true npm test --env=jsdom
 
-# 17. Extend the test stage and create a new stage named build-stage
+# 16. Extend the test stage and create a new stage named build-stage
 FROM test as build-stage
 
-# 18. Build the production static assets
+# 17. Build the production static assets
 RUN npm run build
 
-# 19. Install aquasecurity's trivy for robust image scanning
-FROM aquasec/trivy:0.4.3 as trivy
+# 18. Install aquasecurity's trivy for robust image scanning
+FROM aquasec/trivy:0.4.4 as trivy
 
-# 20. Scan the nginx alpine image before production use
+# 19. Scan the nginx alpine image before production use
 RUN trivy nginx:1.17-alpine && \
     echo "No image vulnerabilities" > result
 
-# 21. Extend the nginx apline image and create a new stage named prod
+# 20. Extend the nginx apline image and create a new stage named prod
 FROM nginx:1.17-alpine as prod
 
-# 22. Copy only the files we want from a few stages into the prod stage
+# 21. Copy only the files we want from a few stages into the prod stage
 COPY --from=trivy result secure
 COPY --from=build-stage /client/app/build /usr/share/nginx/html
 
-# 23. Copy non-root user nginx configuration
+# 22. Copy non-root user nginx configuration
 # https://hub.docker.com/_/nginx
 COPY --from=build-stage /client/app/nginx /etc/nginx/
 
-# 24. Provide meta data about the port the container must expose
+# 23. Provide meta data about the port the container must expose
 EXPOSE 80
 
-# 25. Define how Docker should test the container to check that it is still working
+# 24. Define how Docker should test the container to check that it is still working
 HEALTHCHECK CMD [ "wget", "-q", "0.0.0.0:80" ]

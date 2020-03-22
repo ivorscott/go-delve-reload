@@ -22,6 +22,7 @@ services:
       - ./api:/api
     networks:
       - postgres-net
+    # swap commands to disable live reload
     # command: go run ./cmd/api
     command: CompileDaemon --build="go build -o main ./cmd/api" -log-prefix=false --command=./main
 
@@ -33,9 +34,13 @@ services:
     environment:
       HTTPS: "true"
       REACT_APP_API_URL: https://localhost:$API_PORT/v1
+      CHOKIDAR_USEPOLLING: "true"
     ports:
       - $CLIENT_PORT:$CLIENT_PORT
+    # fixes bug in react-scripts/start.js found in latest create react app release
+    # https://github.com/facebook/create-react-app/issues/8688
     tty: true
+    stdin_open: true
     volumes:
       - ./client:/client/app
       - /client/app/node_modules
@@ -63,7 +68,7 @@ services:
     networks:
       - postgres-net
       # run a container without the default seccomp profile
-      # https://github.com/go-delve/delve/issues/515
+      # https://github.com/go-delve/delve/issues/515#issuecomment-214911481
     security_opt:
       - "seccomp:unconfined"
     tty: true

@@ -2,9 +2,9 @@
 
 ## The Ultimate Go and React Development Setup with Docker (Part 2)
 
-### Building A Complete Example
+### Building A Complete API Example
 
-This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part2). If you follow along, the project starter is available under the `part2_starter` branch. Part 2 is heavily influenced by [Ardan labs service training](https://github.com/ardanlabs/service-training). I highly recommend their [courses](https://education.ardanlabs.com/).
+This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part2). Part 2 is heavily influenced by [Ardan labs service training](https://github.com/ardanlabs/service-training). I highly recommend their [courses](https://education.ardanlabs.com/).
 
 [Previous blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker)
 
@@ -204,7 +204,7 @@ I think it really depends on what you're trying to achieve.
 
 My reasons for using Docker:
 
-1. Custom workflows
+1. Custom Workflows
 2. Predictability Across Machines
 3. Isolated Environments
 4. Optional Live Reloading
@@ -379,9 +379,19 @@ make api # develop the api with live reloading
 make client # develop the client app in a separate terminal
 ```
 
+![Minion](docs/run.png)
+
+6 - Navigate to https://localhost:4000/v1/products and https://localhost:3000 in two separate tabs.
+
 This approach to development uses containers entirely.
 
-6 - **Idiomatic Go development** (container free go api)
+**Note:**
+
+To replicate the production environment as much as possible locally, we use self-signed certificates.
+
+In your browser, you may see a warning and need to click a link to proceed to the requested page. This is common when using self-signed certificates.
+
+7 - **Idiomatic Go development** (container free go api)
 
 Another option is to only containerize the client and database. This approach
 allows you to work with the go api in an idiomatic fashion, with command line flags
@@ -445,6 +455,10 @@ make debug-api # use delve on the same api in a separate container (no live relo
 
 make debug-db # use pgcli to inspect postgres db
 
+make rm # remove all containers
+
+make rmi # remove all images
+
 make exec user="..." service="..." cmd="..." # execute command in running container
 
 make tidy # clean up unused api dependencies
@@ -452,6 +466,8 @@ make tidy # clean up unused api dependencies
 make test-api # run api tests
 
 make test-client # run client tests
+
+make test-client-watch # run client tests and watch
 
 make migration <name> # create a migration
 
@@ -519,7 +535,7 @@ Run the debuggable api. Set a break point on a route handler. Click 'Launch remo
 
 </details>
 
-### Building A Complete Example
+### Building A Complete API Example
 
 The Ultimate Go and React Development Setup with Docker (Part 2)
 
@@ -577,7 +593,7 @@ The Ultimate Go and React Production Setup with Docker (Part 4)
 
 </details>
 
-### Continuos Integration And Continuos Delivery
+### Continuous Integration And Continuous Delivery
 
 The Ultimate Go and React Production Setup with Docker (Part 5)
 

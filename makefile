@@ -100,7 +100,13 @@ exec:
 
 test-client:
 	@echo [ running client tests ... ]
-	@docker-compose run client npm test 
+	@cd client; npx jest --notify
+	@cd ..
+
+test-client-watch:
+	@echo [ running client tests ... ]
+	@cd client; npx jest --watchAll
+	@cd ..
 
 test-api:
 	@echo [ running api tests ... ]
@@ -117,6 +123,14 @@ debug-db:
 	@# advanced command line interface for postgres
 	@# includes auto-completion and syntax highlighting. https://www.pgcli.com/
 	@docker run -it --rm --net $(POSTGRES_NET) dencold/pgcli $(URL)
+
+rm:
+	@echo [ removing all containers ... ]
+	docker rm -f `docker ps -aq`
+
+rmi:
+	@echo [ removing all images ... ]
+	docker rmi -f `docker images -a -q`
 
 migration:
     ifndef name
@@ -144,6 +158,7 @@ version:
 	@docker run --volume $(MIGRATIONS_VOLUME) --network $(POSTGRES_NET) migrate/migrate \
 	-path /migrations \
 	-database $(URL) version \
+	&& echo \
 	&& echo  $(SUCCESS)
 	
 up:
@@ -214,6 +229,8 @@ insert:
 .PHONY: db
 .PHONY: debug-api
 .PHONY: debug-db
+.PHONY: rm
+.PHONY: rmi
 .PHONY: down
 .PHONY: dump
 .PHONY: force
