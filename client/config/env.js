@@ -1,10 +1,10 @@
 "use strict";
 
 const fs = require("fs");
+const path = require("path");
 const paths = require("./paths");
 
-// Modification #1) Import path and swarm secret helpers
-const path = require("path");
+// Import docker swarm secrets
 const dockerSecret = require("./secrets");
 const getSecret = dockerSecret.getSecret;
 const isSecret = dockerSecret.isSecret;
@@ -51,7 +51,7 @@ dotenvFiles.forEach(dotenvFile => {
 // It works similar to `NODE_PATH` in Node itself:
 // https://nodejs.org/api/modules.html#modules_loading_from_the_global_folders
 // Note that unlike in Node, only *relative* paths from `NODE_PATH` are honored.
-// Otherwise, we risk importing Node.js core modules into an app instead of Webpack shims.
+// Otherwise, we risk importing Node.js core modules into an app instead of webpack shims.
 // https://github.com/facebook/create-react-app/issues/1023#issuecomment-265344421
 // We also resolve them to make sure all tools using them work consistently.
 const appDirectory = fs.realpathSync(process.cwd());
@@ -62,7 +62,7 @@ process.env.NODE_PATH = (process.env.NODE_PATH || "")
   .join(path.delimiter);
 
 // Grab NODE_ENV and REACT_APP_* environment variables and prepare them to be
-// injected into the application via DefinePlugin in Webpack configuration.
+// injected into the application via DefinePlugin in webpack configuration.
 const REACT_APP = /^REACT_APP_/i;
 
 function getClientEnvironment(publicUrl) {
@@ -70,7 +70,6 @@ function getClientEnvironment(publicUrl) {
     .filter(key => REACT_APP.test(key))
     .reduce(
       (env, key) => {
-        // Modification #2) Retrieve the real secret value
         env[key] = isSecret(key)
           ? getSecret(path.basename(process.env[key]))
           : process.env[key];
@@ -84,10 +83,18 @@ function getClientEnvironment(publicUrl) {
         // For example, <img src={process.env.PUBLIC_URL + '/img/logo.png'} />.
         // This should only be used as an escape hatch. Normally you would put
         // images into the `src` and `import` them in code to get their paths.
-        PUBLIC_URL: publicUrl
+        PUBLIC_URL: publicUrl,
+        // We support configuring the sockjs pathname during development.
+        // These settings let a developer run multiple simultaneous projects.
+        // They are used as the connection `hostname`, `pathname` and `port`
+        // in webpackHotDevClient. They are used as the `sockHost`, `sockPath`
+        // and `sockPort` options in webpack-dev-server.
+        WDS_SOCKET_HOST: process.env.WDS_SOCKET_HOST,
+        WDS_SOCKET_PATH: process.env.WDS_SOCKET_PATH,
+        WDS_SOCKET_PORT: process.env.WDS_SOCKET_PORT
       }
     );
-  // Stringify all values so we can feed into Webpack DefinePlugin
+  // Stringify all values so we can feed into webpack DefinePlugin
   const stringified = {
     "process.env": Object.keys(raw).reduce((env, key) => {
       env[key] = JSON.stringify(raw[key]);

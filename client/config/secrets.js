@@ -1,5 +1,4 @@
-// Docker secrets helper for SPAs
-
+// Docker secrets helper
 const fs = require("fs");
 const path = require("path");
 

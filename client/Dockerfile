@@ -1,5 +1,5 @@
 # 1. Use the node apline image as the base stage of a multi-stage routine
-FROM node:12.1.0-alpine as base
+FROM node:12.16.1-alpine as base
 
 # 2. Set the working directory to /client
 WORKDIR /client
@@ -28,53 +28,53 @@ RUN mkdir /client/app
 RUN npm i --only=development \
     && npm cache clean --force
 
-# 11. Print npm configuration for debugging purposes
+# 10. Print npm configuration for debugging purposes
 RUN npm config list
 
-# 12. Set the working directory to /client/app
+# 11. Set the working directory to /client/app
 WORKDIR /client/app
 
-# 13. Provide the default command for the development container
+# 12. Provide the default command for the development container
 CMD ["npm", "run", "start"]
 
-# 14. Extend the dev stage and create a new stage called test
+# 13. Extend the dev stage and create a new stage called test
 FROM dev as test
 
-# 15. Copy the remainder of the client folder source code into the image's filesystem
+# 14. Copy the remainder of the client folder source code into the image's filesystem
 COPY . .
 
-# 16. Run node_module vulnerability checks
+# 15. Run node_module vulnerability checks
 RUN npm audit
 
-# 17. Run unit tests in CI
+# 16. Run unit tests in CI
 RUN CI=true npm test --env=jsdom
 
-# 18. Extend the test stage and create a new stage named build-stage
+# 17. Extend the test stage and create a new stage named build-stage
 FROM test as build-stage
 
-# 19. Build the production static assets
+# 18. Build the production static assets
 RUN npm run build
 
-# 20. Install aquasecurity's trivy for robust image scanning
+# 19. Install aquasecurity's trivy for robust image scanning
 FROM aquasec/trivy:0.4.3 as trivy
 
-# 21. Scan the nginx alpine image before production use
+# 20. Scan the nginx alpine image before production use
 RUN trivy nginx:1.17-alpine && \
     echo "No image vulnerabilities" > result
 
-# 22. Extend the nginx apline image and create a new stage named prod
+# 21. Extend the nginx apline image and create a new stage named prod
 FROM nginx:1.17-alpine as prod
 
-# 23. Copy only the files we want from a few stages into the prod stage
+# 22. Copy only the files we want from a few stages into the prod stage
 COPY --from=trivy result secure
 COPY --from=build-stage /client/app/build /usr/share/nginx/html
 
-# 24. Copy non-root user nginx configuration
+# 23. Copy non-root user nginx configuration
 # https://hub.docker.com/_/nginx
 COPY --from=build-stage /client/app/nginx /etc/nginx/
 
-# 25. Provide meta data about the port the container must expose
+# 24. Provide meta data about the port the container must expose
 EXPOSE 80
 
-# 26. Define how Docker should test the container to check that it is still working
+# 25. Define how Docker should test the container to check that it is still working
 HEALTHCHECK CMD [ "wget", "-q", "0.0.0.0:80" ]

@@ -1,13 +1,3 @@
-/*
-COLORS
-
-Light green: #7ed56f;
-Medium green: #55c57a
-Dark green: #28b485
-
-*/
-
-// modern universal reset
 *,
 *::after,
 *::before {
@@ -73,14 +63,9 @@ body {
     font-weight: 400;
     letter-spacing: 35px;
 
-    animation-name: moveInLeft; // required
-    animation-duration: 1s; // required
+    animation-name: moveInLeft;
+    animation-duration: 1s;
     animation-timing-function: ease-out;
-
-    /*
-    animation-delay: 3s;
-    animation-iteration-count: 3;
-   */
   }
 
   &--sub {
@@ -158,6 +143,7 @@ body {
     font-size: 36px;
     font-weight: 700;
     text-align: center;
+    margin-bottom: 46px;
   }
 
   .products {
@@ -175,6 +161,24 @@ body {
       color: #444;
       box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25),
         0 10px 10px rgba(0, 0, 0, 0.22);
+    }
+    .a {
+      position: relative;
+      top: 0px;
+      animation: moveInBottom 0.65s ease-out 1s;
+      animation-fill-mode: backwards;
+    }
+    .b {
+      position: relative;
+      top: 40px;
+      animation: moveInBottom 0.65s ease-out 1.2s;
+      animation-fill-mode: backwards;
+    }
+    .c {
+      position: relative;
+      top: 80px;
+      animation: moveInBottom 0.65s ease-out 1.4s;
+      animation-fill-mode: backwards;
     }
   }
 }
