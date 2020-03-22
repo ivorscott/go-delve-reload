@@ -1,5 +1,5 @@
 # 1. Use the node apline image as the base stage of a multi-stage routine
-FROM node:12.1.0-alpine as base
+FROM node:13.7.0-alpine as base
 
 # 2. Set the working directory to /client
 WORKDIR /client
@@ -27,6 +27,10 @@ RUN mkdir /client/app
 # 9. Install development dependencies
 RUN npm i --only=development \
     && npm cache clean --force
+
+# 10. Patch create-react-app bug preventing self-signed certificate usage
+# https://github.com/facebook/create-react-app/issues/8075
+COPY patch.js /client/node_modules/react-dev-utils/webpackHotDevClient.js
 
 # 11. Print npm configuration for debugging purposes
 RUN npm config list

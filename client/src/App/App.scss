@@ -1,0 +1,221 @@
+/*
+COLORS
+
+Light green: #7ed56f;
+Medium green: #55c57a
+Dark green: #28b485
+
+*/
+
+// modern universal reset
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+
+body {
+  box-sizing: border-box;
+  // https://css-tricks.com/snippets/css/font-shorthand/
+  font: normal 400 24px/1.7 "Lato", Helvetica, sans-serif;
+  background: #000;
+  color: #777;
+  padding: 30px;
+}
+
+.header {
+  position: relative;
+  height: 85vh;
+  background-image: linear-gradient(
+      to right bottom,
+      rgba(126, 2123, 111, 0.8),
+      rgba(209, 73, 31, 0.6)
+    ),
+    url("http://getwallpapers.com/wallpaper/full/d/3/a/547521.jpg");
+  background-size: cover;
+  background-position: top;
+  // https://bennettfeely.com/clippy/
+  clip-path: polygon(0 0, 100% 0, 100% 65vh, 0 95%);
+  border: 20px solid white;
+  &__logo-box {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+  }
+
+  &__logo {
+    height: 35px;
+  }
+
+  &__text-box {
+    position: absolute;
+    // top & left are relative to the parent element
+    top: 40%;
+    left: 50%;
+    // translate is in relation to the element itself 'enables centering'
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+}
+
+.heading-primary {
+  color: #fff;
+  text-transform: uppercase;
+
+  backface-visibility: hidden;
+  margin-bottom: 60px;
+
+  &--main {
+    display: block;
+    font-size: 60px;
+    font-weight: 400;
+    letter-spacing: 35px;
+
+    animation-name: moveInLeft; // required
+    animation-duration: 1s; // required
+    animation-timing-function: ease-out;
+
+    /*
+    animation-delay: 3s;
+    animation-iteration-count: 3;
+   */
+  }
+
+  &--sub {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 17.4px;
+    animation: moveInRight 1s ease-out;
+  }
+}
+
+.btn {
+  &:link,
+  &:visited {
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 40px;
+    display: inline-block;
+    border-radius: 100px;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  &::after {
+    // adds a virtual clone
+    content: ""; // required
+    display: inline-block;
+    height: 100%; // setting width and height to 100% clones the dimensions of the real button
+    width: 100%;
+    border-radius: 100px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1; // push it to the back
+    transition: all 0.4s;
+  }
+
+  &:hover {
+    transform: translateY(-3px); // move up onHover
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  &:hover::after {
+    transform: scaleX(1.4) scaleY(1.6);
+    opacity: 0;
+  }
+
+  &:active {
+    transform: translateY(-1px); // go down a pixel onPress
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  &--white {
+    color: #777;
+    background: #fff;
+  }
+
+  &--white::after {
+    background-color: #fff;
+  }
+
+  &--animated {
+    animation: moveInBottom 0.5s ease-out 0.75s;
+    animation-fill-mode: backwards;
+  }
+}
+
+.products-feature {
+  position: relative;
+  top: -650px;
+  margin: 100px;
+  color: #fff;
+
+  header {
+    font-size: 36px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .products {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    &__card {
+      width: 100%;
+      min-height: 300px;
+      max-width: 300px;
+      margin: 10px;
+      padding: 12px;
+      background-color: #fff;
+      border-radius: 8px;
+      color: #444;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25),
+        0 10px 10px rgba(0, 0, 0, 0.22);
+    }
+  }
+}
+
+@keyframes moveInLeft {
+  from {
+    opacity: 0;
+    // left to right
+    transform: translateX(-100px);
+  }
+  80% {
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes moveInRight {
+  from {
+    opacity: 0;
+    // left to right
+    transform: translateX(100px);
+  }
+  80% {
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes moveInBottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
