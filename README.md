@@ -2,7 +2,7 @@
 
 ## The Ultimate Go and React Development Setup with Docker (Part 2)
 
-### Building A Complete API Example
+### Building A Better API
 
 This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part2). Part 2 is heavily influenced by [Ardan labs service training](https://github.com/ardanlabs/service-training). I highly recommend their [courses](https://education.ardanlabs.com/).
 
@@ -535,7 +535,7 @@ Run the debuggable api. Set a break point on a route handler. Click 'Launch remo
 
 </details>
 
-### Building A Complete API Example
+### Building A Better API
 
 The Ultimate Go and React Development Setup with Docker (Part 2)
 
