@@ -8,7 +8,20 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 
 [Previous blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker)
 
-Setup changes from Part 1
+## Contents
+
+- Setup Changes From Part 1
+- Graceful Shutdown
+- Seeding & Migrations (With Go-Migrate)
+- Package Oriented Design
+- Fluent SQL Generation (With Squirrel)
+- Error Handling
+- Cancellation
+- Request Validation
+- Request Logging
+- Integration Testing (With TestContainers-Go)
+
+### Setup Changes From Part 1
 
 <details>
   <summary>See changes</summary>
@@ -215,19 +228,6 @@ My reasons for using Docker:
 These benefits should be investigated, case by case. They deserve investment.
 
 </details>
-
-## Contents
-
-- Setup Changes From Part 1
-- Graceful Shutdown
-- Seeding & Migrations (With Go-Migrate)
-- Package Oriented Design
-- Fluent SQL Generation (With Squirrel)
-- Error Handling
-- Cancellation
-- Request Validation
-- Request Logging
-- Integration Testing (With TestContainers-Go)
 
 ### Prerequisites
 
