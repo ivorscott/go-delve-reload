@@ -8,7 +8,7 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 
 [Previous blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker)
 
-Improvements since last blog post
+Setup changes from Part 1
 
 <details>
   <summary>See changes</summary>
@@ -218,15 +218,16 @@ These benefits should be investigated, case by case. They deserve investment.
 
 ## Contents
 
+- Setup Changes From Part 1
 - Graceful Shutdown
-- Seeding & Migrations
+- Seeding & Migrations (With Go-Migrate)
 - Package Oriented Design
-- Fluent SQL Generation
+- Fluent SQL Generation (With Squirrel)
 - Error Handling
 - Cancellation
 - Request Validation
 - Request Logging
-- Testcontainers-go
+- Integration Testing (With TestContainers-Go)
 
 ### Prerequisites
 
@@ -544,15 +545,16 @@ The Ultimate Go and React Development Setup with Docker (Part 2)
 
   <br/>
 
+- Setup Changes From Part 1
 - Graceful Shutdown
-- Seeding & Migrations
+- Seeding & Migrations (With Go-Migrate)
 - Package Oriented Design
-- Fluent SQL Generation
+- Fluent SQL Generation (With Squirrel)
 - Error Handling
 - Cancellation
 - Request Validation
 - Request Logging
-- Testcontainers-go
+- Integration Testing (With TestContainers-Go)
 
 </details>
 
