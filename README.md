@@ -30,7 +30,7 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 
 1 - Removed Traefik
 
-Traefik will make its way back in production. It's not necessary in development because `create-react-app` and the `net/http` package both have mechanisms to use self signed certificates. This change actually speeds up our workflow. In `create-react-app`, inside `package.json` we can enable https by adding an additional argument `HTTPS=true` behind the start command.
+Traefik will make its way back in production. It's not necessary in development because `create-react-app` and the `net/http` package both have mechanisms to use self signed certificates. This change actually speeds up our workflow. In `create-react-app`, inside `package.json` we enable self-signed certificates by adding `HTTPS=true` behind the start command.
 
 ```json
 // package.json
@@ -42,7 +42,7 @@ Traefik will make its way back in production. It's not necessary in development 
   },
 ```
 
-In Golang, we use the `crypto` package to generate a cert with `make` or `make cert`.
+In Go, we use the `crypto` package to generate a cert with `make` or `make cert`.
 
 ```makefile
 # makefile
@@ -80,8 +80,8 @@ In development, we can disable server error logging to avoid seeing "tls: unknow
 
 	if !cfg.Web.Production {
 		// Prevent the HTTP server from logging stuff on its own.
-		// The things we care about we log ourselves from the handlers.
-		// This prevents "tls: unknown certificate" errors caused by self-signed certificates
+		// The things we care about we log ourselves.
+		// Prevents "tls: unknown certificate" errors caused by self-signed certificates.
 		errorLog = log.New(ioutil.Discard, "", 0)
 	}
 
@@ -94,10 +94,7 @@ In development, we can disable server error logging to avoid seeing "tls: unknow
 	}
 ```
 
-CompileDaemon also cluttered terminal logging.
-
-Docker-compose prints informational messages to stderr, and container output to the same stream as it was written to in the container (stdout or stderr) [Issue #2115](https://github.com/docker/compose/issues/2115#issuecomment-193420167). So CompileDaemon was displaying an "stderr:" prefix in all container logs. This was fixed
-with an additional command line flag to turn off the log prefix: `-log-prefix=false`.
+CompileDaemon created ugly logs as well. By default, CompileDaemon prefixes all child process output with stdout or stderr labels and log timestamps. This was fixed with an additional flag to turn off the log prefix: `-log-prefix=false`.
 
 ```yaml
 # docker-compose.yml
@@ -107,11 +104,9 @@ command: CompileDaemon --build="go build -o main ./cmd/api" -log-prefix=false --
 
 3 - Added the ArdanLabs [configuration package](https://github.com/ardanlabs/conf)
 
-This package provides support for using environmental variables and command line arguments for configuration.
+The Ardan Labs configuration package provides support for using environmental variables and command line arguments for configuration. I copied and paste the package under: /api/internal/platform/conf.
 
-The struct field `cfg.Web.Production` for example, can be represented as `--web-production` in cli flag form or
-`API_WEB_PRODUCTION` in environment variable form. When in environment variable form there is an extra namespace to
-reduce possible name conflicts in our case that namespace is `API`.
+The struct field cfg.Web.Production for example, can be represented as --web-production in cli flag form or API_WEB_PRODUCTION in environment variable form. In environment variable form there's an extra namespace so we only parse the vars we expect to use. This also reduces name conflicts. In our case that namespace is API.
 
 ```go
 // main.go
@@ -150,6 +145,8 @@ reduce possible name conflicts in our case that namespace is `API`.
 	}
 
 ```
+
+As seen above, the package involves creating a nested struct and detailing the configuration vars with their associated type and a default value. After the nested struct, we use the configuration package to parse the arguments which are either cli flags or environment variables with: conf.Parse(os.Args[1:], "API", &cfg). If there's an error we either reveal usage instructions or throw a fatal error.The next snippet shows the same vars referenced in our compose file with the API namespace:
 
 ```yaml
 # docker-compose.yml
@@ -202,8 +199,7 @@ Now Docker secrets are only supported when we pass a truthy Production environme
 
 5 - Removed PgAdmin4
 
-If you're going to use pgAdmin4 you're better off using it on your host machine without a container. It's more reliable
-and not a pain to configure. Importing and exporting sql files was extremely difficult when dealing with the containerized version.
+If you're going to use PgAdmin4 you're better off using it on your host machine outside a container. Reason being, it's more reliable. I found importing and exporting sql files extremely difficult in the PgAdmin4 UI inside a container.
 
 6 - Enabled Idiomatic Go development
 
@@ -231,13 +227,13 @@ These benefits should be investigated, case by case. They deserve investment.
 
 ### Prerequisites
 
-[Setting up VSCode](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#setting-up-vscode)
-
-### Requirements
-
 - VSCode
 - Postman
 - Docker
+
+### Requirements
+
+[Setting up VSCode](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#setting-up-vscode)
 
 ### Usage
 

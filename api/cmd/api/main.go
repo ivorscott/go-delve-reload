@@ -110,7 +110,8 @@ func run() error {
 
 	if !cfg.Web.Production {
 		// Prevent the HTTP server from logging stuff on its own.
-		// This prevents "tls: unknown certificate" errors caused by self-signed certificates
+		// The things we care about we log ourselves.
+		// Prevents "tls: unknown certificate" errors caused by self-signed certificates.
 		discardLog = log.New(ioutil.Discard, "", 0)
 	}
 
