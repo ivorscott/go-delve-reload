@@ -4,13 +4,13 @@
 
 ### Building A Better API
 
-This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part2). Part 2 is heavily influenced by [Ardan labs service training](https://github.com/ardanlabs/service-training). I highly recommend their [courses](https://education.ardanlabs.com/).
+This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part2). Many improvements in Part 2 originate from [Ardan labs service training](https://github.com/ardanlabs/service-training). I highly recommend their [courses](https://education.ardanlabs.com/).
 
 [Previous blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker)
 
 ## Contents
 
-- Setup Changes From Part 1
+- Improvements to Part 1
 - Graceful Shutdown
 - Seeding & Migrations (With Go-Migrate)
 - Package Oriented Design
@@ -21,16 +21,16 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 - Request Logging
 - Integration Testing (With TestContainers-Go)
 
-### Setup Changes From Part 1
+### Improvements to Part 1
 
 <details>
   <summary>See changes</summary>
 
   <br/>
 
-1 - Removed Traefik
+1 - Removed Traefik from development
 
-Traefik will make its way back in production. It's not necessary in development because `create-react-app` and the `net/http` package both have mechanisms to use self signed certificates. This change actually speeds up our workflow. In `create-react-app`, inside `package.json` we enable self-signed certificates by adding `HTTPS=true` behind the start command.
+If you recall, the previous post used Traefik for self-signed certificates. We're no longer using Traefik in development. We'll use it in production. `create-react-app` and the `net/http` package both have mechanisms to use self signed-certificates. This cleans up our docker-compose file and speeds up the workflow. Now we don't need to pull the Traefik image or run the container.In the client app we enable self-signed certificates by adding HTTPS=true to the `package.json`.
 
 ```json
 // package.json
@@ -42,7 +42,7 @@ Traefik will make its way back in production. It's not necessary in development 
   },
 ```
 
-In Go, we use the `crypto` package to generate a cert with `make` or `make cert`.
+In Go, we use the `crypto` package to generate a cert with `make cert`. Running make also works because cert is the first target in the makefile and thus the default. This is intentional. Someone might think executing make initializes the project (like in Part 1). In that case, they end up generating required API certs instead. This makes the Makefile usage less error-prone. Generating certs more than once replaces existing certs without issue.
 
 ```makefile
 # makefile
@@ -53,7 +53,7 @@ cert:
 	@mv *.pem ./api/tls
 ```
 
-We only use self-signed certificates in development, in production we will use Traefik.
+The following demonstrates how we can switch between self-signed certificates and Traefik. When `cfg.Web.Production` is true, we are using Traefik. In part 3 ("Docker Swarm and Traefik"), we will have a separate compose file for production.
 
 ```go
 // main.go
@@ -71,7 +71,11 @@ We only use self-signed certificates in development, in production we will use T
 
 2 - Cleaner terminal logging
 
-In development, we can disable server error logging to avoid seeing "tls: unknown certificate" errors caused by self-signed certificates.
+Using self-signed certificates produces ugly logs.
+
+![Minion](docs/ugly-compile-daemon-logs.png)
+
+We can avoid the `tls: unknown certificate` message by disabling server error logging. It's ok to do this in development. The things we do care about print from logging and error middleware. When `cfg.Web.Production` is false, a new error logger will discard server logs.
 
 ```go
 // main.go
@@ -94,7 +98,9 @@ In development, we can disable server error logging to avoid seeing "tls: unknow
 	}
 ```
 
-CompileDaemon created ugly logs as well. By default, CompileDaemon prefixes all child process output with stdout or stderr labels and log timestamps. This was fixed with an additional flag to turn off the log prefix: `-log-prefix=false`.
+[CompileDaemon](https://github.com/githubnemo/CompileDaemon) created ugly logs as well. CompileDaemon prefixes all child process output with stdout or stderr labels.
+
+![Minion](docs/ugly-self-signed-cert-logs.png)
 
 ```yaml
 # docker-compose.yml
@@ -102,11 +108,11 @@ CompileDaemon created ugly logs as well. By default, CompileDaemon prefixes all 
 command: CompileDaemon --build="go build -o main ./cmd/api" -log-prefix=false --command=./main
 ```
 
-3 - Added the ArdanLabs [configuration package](https://github.com/ardanlabs/conf)
+3 - Added the Ardan Labs configuration package
 
-The Ardan Labs configuration package provides support for using environmental variables and command line arguments for configuration. I copied and paste the package under: /api/internal/platform/conf.
+In part 1, API configuration came from environment variables in the docker-compose file. But the were dependent on docker secret values, making it harder to opt out of docker in development. Reserve docker secrets for production and adopt the [Ardan Labs configuration package](https://github.com/ardanlabs/conf). The package supports both environment variables and command line arguments. Now we can out out of docker if we want a more idiomatic Go API development workflow. I copied and paste the package under: `/api/internal/platform/conf`.
 
-The struct field cfg.Web.Production for example, can be represented as --web-production in cli flag form or API_WEB_PRODUCTION in environment variable form. In environment variable form there's an extra namespace so we only parse the vars we expect to use. This also reduces name conflicts. In our case that namespace is API.
+The struct field `cfg.Web.Production` can in cli form would be `--web-production`. In environment variable form it is `API_WEB_PRODUCTION`. Notice, as an environment variable there's an extra namespace. This ensures we only parse the vars we expect. This also reduces name conflicts. In our case that namespace is `API`.
 
 ```go
 // main.go
@@ -146,7 +152,7 @@ The struct field cfg.Web.Production for example, can be represented as --web-pro
 
 ```
 
-As seen above, the package involves creating a nested struct and detailing the configuration vars with their associated type and a default value. After the nested struct, we use the configuration package to parse the arguments which are either cli flags or environment variables with: conf.Parse(os.Args[1:], "API", &cfg). If there's an error we either reveal usage instructions or throw a fatal error.The next snippet shows the same vars referenced in our compose file with the API namespace:
+The configuration package requires a nested struct describing the configuration fields. Each field has a type and default value supplied in a struct tag. To parse the arguments, as environment variables or the command line flags we do: `conf.Parse(os.Args[1:], "API", &cfg)`. If there's an error we either reveal usage instructions or throw a fatal error.The next snippet shows the same vars referenced in our compose file with the API namespace:
 
 ```yaml
 # docker-compose.yml
@@ -170,12 +176,11 @@ services:
       - $API_PORT:$API_PORT
 ```
 
+Store default environment variables in a `.env` file. When an `.env` file exists in the same directory as the docker-compose file, we can reference it. To do this, prefix a dollar sign before the environment variable name. For example: `$API_PORT` or `$CLIENT_PORT`. This allows us to maintain default values in a separate file for docker-compose.
+
 4 - Removed Docker Secrets from Development
 
-Docker Secrets will still be supported, just not in development. In development, we now use an .env file instead.
-Docker secrets are a Swarm specific construct. They aren't really secret in docker-compose anyway [PR #4368](https://github.com/docker/compose/pull/4368). Docker-compose just doesn't complain when it sees them. This was necessary to ensure our application could support them in the future, when we start working with Docker Swarm in Production.
-
-Now Docker secrets are only supported when we pass a truthy Production environment argument.
+Docker secrets are a Swarm specific construct. They aren't secret in docker-compose anyway [PR #4368](https://github.com/docker/compose/pull/4368). This only works because docker-compose isn't complaining when it sees them. Now Docker secrets are only supported when `cfg.Web.Production` is true. When this happens we swap out the default database configuration with secrets.
 
 ```go
 // main.go
@@ -197,21 +202,21 @@ Now Docker secrets are only supported when we pass a truthy Production environme
 
 ```
 
+More on Docker secrets when we get to production (discussed in Part 3, _"Docker Swarm and Traefik"_).
+
 5 - Removed PgAdmin4
 
-If you're going to use PgAdmin4 you're better off using it on your host machine outside a container. Reason being, it's more reliable. I found importing and exporting sql files extremely difficult in the PgAdmin4 UI inside a container.
+PgAdmin4 is one of many Postgres editors available. For example, I've enjoyed using SQLPro Studio at work. If you're going to use PgAdmin4 or any other editor, use it on your host machine without a container. Reason being, it's more reliable. Importing and exporting sql files is difficult in a PgAdmin4 container.
 
 6 - Enabled Idiomatic Go development
 
-Containerizing the go api is now optional. Dave Cheney made me do it:
+Containerizing the Go API is now optional. This makes our development workflow even more flexible. This tweet made me consider the consequences of having the API too coupled to Docker:
 
 "Folks, keep docker out of your edit/compile/test inner loop."
 
 -- https://twitter.com/davecheney/status/1232078682287591425
 
-I think it really depends on what you're trying to achieve.
-
-My reasons for using Docker:
+In the end Docker should be optional and you should know your reasons for using it. My reasons are:
 
 1. Custom Workflows
 2. Predictability Across Machines
@@ -221,23 +226,29 @@ My reasons for using Docker:
 6. Integration Testing In CI
 7. Preparation For Deployments
 
-These benefits should be investigated, case by case. They deserve investment.
-
 </details>
 
-### Prerequisites
+### Requirements
 
 - VSCode
 - Postman
 - Docker
 
-### Requirements
+## Getting Started
 
-[Setting up VSCode](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#setting-up-vscode)
+```
+git clone https://github.com/ivorscott/go-delve-reload
+cd go-delve-reload
+git checkout part2
+```
+
+[Setup VSCode](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#setting-up-vscode)
 
 ### Usage
 
-1 - Copy the .env.sample file and rename it to .env.
+1 - Copy .env.sample and rename it to .env
+
+The contents of .env should look like this:
 
 ```bash
 # DEVELOPMENT ENVIRONMENT VARIABLES
@@ -252,35 +263,46 @@ POSTGRES_HOST=db
 POSTGRES_NET=postgres-net
 ```
 
+That's it. No further modifications required.
+
 2 - Unblock port 5432 for postgres
 
-The makefile commands and our docker-compose yaml file reference the standard 5432 port for postgres.
-Before continuing, close all existing postgres connections.
+Both the Makefile and docker-compose file reference the standard Postgres port: 5432. Before continuing, close any existing Postgres connections.
+For example, I have a pre-existing installation of Postgres installed with Homebrew. Executing `brew info postgresql@10` generates info on how to start/stop the service. If I didn't know what version I installed I would run `brew list`.
+With Homebrew I do:
 
-With homebrew for example, if you installed `postgresql@10` execute
-`brew info postgresql@10` to generate information on how to start/stop the service. If you don't know what version you installed run `brew list`.
-
-For example, on my machine I did:
-
-```bash
+```
 pg_ctl -D /usr/local/var/postgresql@10 stop
 killall postgresql
 ```
 
 3 - Create self-signed certificates
 
+The next command moves generated certificates to the `./api/tls/` directory.
+
 ```makefile
-make cert # moves generated certs to ./api/tls/
+make cert
 ```
 
 4 - Setup up the Postgres container
 
+Run the database in the background.
+
 ```makefile
-make db # runs database in the background
+make db
+```
+
+#### Create your first migration
+
+Make a migration to create the products table.
+
+```makefile
 make migration create_products_table
 ```
 
-Then add sql to both up & down migrations files found under: `./api/internal/schema/migrations/`.
+Add sql to both `up` & `down` migrations files found at: `./api/internal/schema/migrations/`.
+
+**Up**
 
 ```sql
 -- 000001_create_products_table.up.sql
@@ -294,17 +316,23 @@ CREATE TABLE products (
 );
 ```
 
+**Down**
+
 ```sql
 -- 000001_create_products_table.down.sql
 
 DROP TABLE IF EXISTS products;
 ```
 
+#### Create your second migration
+
 Make another migration to add tags to products:
 
 ```
 make migration add_tags_to_products
 ```
+
+**Up**
 
 ```sql
 
@@ -313,6 +341,8 @@ make migration add_tags_to_products
 ALTER TABLE products
 ADD COLUMN tags varchar(255);
 ```
+
+**Down**
 
 ```sql
 -- 000002_add_tags_to_products.down.sql
@@ -327,21 +357,23 @@ Migrate up to the latest migration
 make up # you can migrate down with "make down"
 ```
 
-Display which version you have selected:
+Display which version you have selected. Expect it two print `2` since you created 2 migrations.
 
 ```makefile
 make version
 ```
 
-[Learn more about my go-migrate postgres helper](https://github.com/ivorscott/go-migrate-postgres-helper)
+[Learn more about my go-migrate Postgres helper](https://github.com/ivorscott/go-migrate-postgres-helper)
 
-Next we need to seed the database:
+#### Seeding the database
+
+Create a seed file of the appropriate name matching the table name you wish to seed.
 
 ```makefile
 make seed products
 ```
 
-This adds an empty products.sql seed file found under `./api/internal/schema/seeds`. Add some rows:
+This adds an empty products.sql seed file found under `./api/internal/schema/seeds`. Add the following sql content:
 
 ```sql
 -- ./api/internal/schema/seeds/products.sql
@@ -353,15 +385,15 @@ INSERT INTO products (id, name, price, description, created) VALUES
 ON CONFLICT DO NOTHING;
 ```
 
-Appending "ON CONFLICT DO NOTHING;" to the end of the sql command prevents conflicts if the seed file is executed to the database more than once. **Note:** This behavior works because the products table has at least one table column with a unique constraint.
+Conflicts may arise when you execute the seed file more than once to the database. Appending "ON CONFLICT DO NOTHING;" to the end prevents this. This functionality depends on at least one table column having a unique constraint. In our case id is unique.
 
-Finally, add the products seed file to the database
+Finally, add the products seed to the database.
 
 ```
 make insert products
 ```
 
-Enter the database and examine its state
+Enter the database and examine its state.
 
 ```makefile
 make debug-db
@@ -369,17 +401,29 @@ make debug-db
 
 ![Minion](docs/debug-db.png)
 
-5 - In a terminal, and under the project root, execute the commands:
+If the database gets deleted, you don't need to repeat every instruction. Simply run:
 
-```makefile
-make api # develop the api with live reloading
-make client # develop the client app in a separate terminal
 ```
+make db
+make up
+make insert products
+```
+
+5 - Run the api and client containers
+
+#### Run the Go API container with live reload enabled
+
+`make api`
+
+#### Run the React TypeScript app container
+
+`make client`
 
 ![Minion](docs/run.png)
 
-6 - Navigate to https://localhost:4000/v1/products and https://localhost:3000 in two separate tabs.
+First, navigate to the API in the browser at: <https://localhost:4000/v1/products>.
 
+Then navigate to the client app at: <https://localhost:3000> in a separate tab.
 This approach to development uses containers entirely.
 
 **Note:**
@@ -388,11 +432,9 @@ To replicate the production environment as much as possible locally, we use self
 
 In your browser, you may see a warning and need to click a link to proceed to the requested page. This is common when using self-signed certificates.
 
-7 - **Idiomatic Go development** (container free go api)
+6 - **Optional Idiomatic Go development** (container free Go API)
 
-Another option is to only containerize the client and database. This approach
-allows you to work with the go api in an idiomatic fashion, with command line flags
-to configure the api and without live reloading on code changes.
+Another approach is to containerize only the client and database. Work with the API in an idiomatic fashion. This means without a container and with live reloading disabled. To configure the API, use command line flags or export environment variables.
 
 ```makefile
 export API_DB_DISABLE_TLS=true
@@ -403,19 +445,17 @@ go run ./cmd/api
 
 ### Try it in Postman
 
-#### List products
+**List products**
 
-GET https://localhost:4000/v1/products
+GET <https://localhost:4000/v1/products>
 
-#### Retrieve one product
+**Retrieve one product**
 
-GET https://localhost:4000/v1/products/cbef5139-323f-48b8-b911-dc9be7d0bc07
+GET <https://localhost:4000/v1/products/:id>
 
-### Create a product
+**Create a product**
 
-POST https://localhost:4000/v1/products
-
-example data:
+POST <https://localhost:4000/v1/products>
 
 ```
 {
@@ -426,15 +466,19 @@ example data:
 }
 ```
 
-7 - Debugging
+**Update a product**
 
-If you wish to debug with Delve you can do this in a separate container instance on port 8888 automatically.
+PUT <https://localhost:4000/v1/products/:id>
 
-```makefile
-make debug-api
+```
+{
+	"name": "Nintendo Rich!"
+}
 ```
 
-[Read previous tutorial about delve debugging](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#delve-debugging-a-go-api)
+**Delete a product**
+
+DELETE <https://localhost:4000/v1/products/:id>
 
 #### Commands
 
@@ -483,7 +527,15 @@ make insert <name> # insert seed file to database
 
 #### Using the debugger in VSCode
 
-Run the debuggable api. Set a break point on a route handler. Click 'Launch remote' then visit the route in the browser.
+If you wish to debug with Delve you can do this in a separate container instance on port 8888 automatically.
+
+```makefile
+make debug-api
+```
+
+Set a break point on a route handler. Click 'Launch remote' then visit the route in the browser.
+
+[Read previous tutorial about delve debugging](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#delve-debugging-a-go-api)
 
 #### VSCode launch.json
 
@@ -541,7 +593,7 @@ The Ultimate Go and React Development Setup with Docker (Part 2)
 
   <br/>
 
-- Setup Changes From Part 1
+- Initial Changes From Part 1
 - Graceful Shutdown
 - Seeding & Migrations (With Go-Migrate)
 - Package Oriented Design
