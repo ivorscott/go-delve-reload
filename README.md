@@ -32,7 +32,7 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 
 1 - Removed Traefik from development
 
-If you recall, the previous post used Traefik for self-signed certificates. We're no longer using Traefik in development. We'll use it in production. `create-react-app` and the `net/http` packages both have mechanisms to use self signed-certificates. This cleans up our docker-compose file and speeds up the workflow. Now we don't need to pull the Traefik image or run the container. In the client app we enable self-signed certificates by adding HTTPS=true to the `package.json`.
+If you recall, the previous post used Traefik for self-signed certificates. We're no longer using Traefik in development. We'll use it in production. `create-react-app` and the `net/http` packages both have mechanisms to use self signed-certificates. This cleans up our docker-compose file and speeds up the workflow. Now we don't need to pull the Traefik image or run the container. In the client app we enable self-signed certificates by adding `HTTPS=true` to the `package.json`.
 
 ```json
 // package.json
@@ -44,7 +44,7 @@ If you recall, the previous post used Traefik for self-signed certificates. We'r
   },
 ```
 
-In Go, we use the `crypto` package to generate a cert with `make cert`. Running make also works because cert is the first target in the makefile and thus the default. This is intentional. Someone might think executing make initializes the project (like in Part 1). In that case, they end up generating required API certs instead. This makes the Makefile usage less error-prone. Generating certs more than once replaces existing certs without issue.
+In Go, we use the `crypto` package to generate a cert with `make cert`. Running make also works because cert is the first target in the makefile and thus the default. This is intentional. Someone might think executing `make` initializes the project (like in Part 1). In that case, they end up generating required API certs instead. This makes the Makefile usage less error-prone. Generating certs more than once replaces existing certs without issue.
 
 ```makefile
 # makefile
@@ -55,7 +55,7 @@ cert:
 	@mv *.pem ./api/tls
 ```
 
-The following demonstrates how we can switch between self-signed certificates and Traefik. When `cfg.Web.Production` is true, we are using Traefik. In part 3 ("Docker Swarm and Traefik"), we will have a separate compose file for production.
+The following demonstrates how we can switch between self-signed certificates and Traefik. When `cfg.Web.Production` is true, we are using Traefik. In Part 3 ("Docker Swarm and Traefik"), we will have a separate compose file for production.
 
 ```go
 // main.go
@@ -75,7 +75,7 @@ The following demonstrates how we can switch between self-signed certificates an
 
 Using self-signed certificates produces ugly logs.
 
-![Minion](docs/ugly-compile-daemon-logs.png)
+![Minion](docs/ugly-self-signed-cert-logs.png)
 
 We can avoid the `tls: unknown certificate` message by disabling server error logging. It's ok to do this in development. The things we do care about print from logging and error middleware. When `cfg.Web.Production` is false, a new error logger will discard server logs.
 
@@ -102,7 +102,7 @@ We can avoid the `tls: unknown certificate` message by disabling server error lo
 
 [CompileDaemon](https://github.com/githubnemo/CompileDaemon) created ugly logs as well. CompileDaemon prefixes all child process output with stdout or stderr labels.
 
-![Minion](docs/ugly-self-signed-cert-logs.png)
+![Minion](docs/ugly-compile-daemon-logs.png)
 
 ```yaml
 # docker-compose.yml
@@ -112,7 +112,7 @@ command: CompileDaemon --build="go build -o main ./cmd/api" -log-prefix=false --
 
 3 - Added the Ardan Labs configuration package
 
-In part 1, API configuration came from environment variables in the docker-compose file. But the were dependent on docker secret values, making it harder to opt out of docker in development. Reserve docker secrets for production and adopt the [Ardan Labs configuration package](https://github.com/ardanlabs/conf). The package supports both environment variables and command line arguments. Now we can out out of docker if we want a more idiomatic Go API development workflow. I copied and paste the package under: `/api/internal/platform/conf`.
+In Part 1, API configuration came from environment variables in the docker-compose file. But the were dependent on docker secret values, making it harder to opt out of docker in development. Reserve docker secrets for production and adopt the [Ardan Labs configuration package](https://github.com/ardanlabs/conf). The package supports both environment variables and command line arguments. Now we can out out of docker if we want a more idiomatic Go API development workflow. I copied and paste the package under: `/api/internal/platform/conf`.
 
 The struct field `cfg.Web.Production` can in cli form would be `--web-production`. In environment variable form it is `API_WEB_PRODUCTION`. Notice, as an environment variable there's an extra namespace. This ensures we only parse the vars we expect. This also reduces name conflicts. In our case that namespace is `API`.
 
