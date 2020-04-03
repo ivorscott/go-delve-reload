@@ -32,7 +32,7 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 
 1 - Removed Traefik from development
 
-If you recall, the previous post used Traefik for self-signed certificates. We're no longer using Traefik in development. We'll use it in production. `create-react-app` and the `net/http` package both have mechanisms to use self signed-certificates. This cleans up our docker-compose file and speeds up the workflow. Now we don't need to pull the Traefik image or run the container.In the client app we enable self-signed certificates by adding HTTPS=true to the `package.json`.
+If you recall, the previous post used Traefik for self-signed certificates. We're no longer using Traefik in development. We'll use it in production. `create-react-app` and the `net/http` packages both have mechanisms to use self signed-certificates. This cleans up our docker-compose file and speeds up the workflow. Now we don't need to pull the Traefik image or run the container.In the client app we enable self-signed certificates by adding HTTPS=true to the `package.json`.
 
 ```json
 // package.json
