@@ -159,7 +159,7 @@ func (p *ProductTests) List(t *testing.T) {
 		},
 		{
 			"id":          "ce93a886-3a0e-456b-b7f5-8652d2de1e8f",
-			"name":        "Playsation 4",
+			"name":        "Playstation 4",
 			"price":       float64(299),
 			"description": "Eighth-generation home video game console developed by Sony Interactive Entertainment.",
 			"created":     "2019-01-01T00:00:01.000001Z",

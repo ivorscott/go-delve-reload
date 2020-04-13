@@ -24,7 +24,7 @@ services:
       - postgres-net
     # swap commands to disable live reload
     # command: go run ./cmd/api
-    command: CompileDaemon --build="go build -o main ./cmd/api" --command=./main
+    command: CompileDaemon --build="go build -o main ./cmd/api" -log-prefix=false --command=./main
 
   client:
     build:

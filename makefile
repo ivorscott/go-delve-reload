@@ -76,7 +76,7 @@ client:
 
 clean:
 	@echo [ teardown all containers ... ]
-	docker-compose down
+	docker rm -f `docker ps -qa`
 	@echo $(SUCCESS)
 
 audit:
