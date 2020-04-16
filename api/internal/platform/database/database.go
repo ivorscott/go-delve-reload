@@ -50,7 +50,7 @@ func NewRepository(cfg Config) (*Repository, error) {
 
 	db, err := sqlx.Open("postgres", u.String())
 	if err != nil {
-		return nil, errors.Wrap(err, "connect to database")
+		return nil, errors.Wrap(err, "connecting to database")
 	}
 
 	return &Repository{

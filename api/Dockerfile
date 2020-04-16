@@ -37,50 +37,44 @@ RUN go env
 RUN go get github.com/go-delve/delve/cmd/dlv \
     && go get github.com/githubnemo/CompileDaemon
 
-
 # 11. Provide meta data about the ports the container must expose
 # port 4000 -> api port
 # port 2345 -> debugger port
 EXPOSE 4000 2345
 
-# 12. Extend the dev stage and create a new stage named test
-FROM dev as test
+# 12. Extend the dev stage and create a new stage named build-stage
+FROM dev as build-stage
 
 # 13. Copy the remaining api code into /api in the image's filesystem
 COPY . .
 
-# 14. Disable CGO and run unit tests
-RUN export CGO_ENABLED=0 && \
-    go test -v ./...
-
-# 15. Extend the test stage and create a new stage named build-stage
-FROM test as build-stage
-
-# 16. Build the api with "-ldflags" aka linker flags to reduce binary size
+# 14. Disable CGO and pass in frontend web address argument
+RUN export CGO_ENABLED=0
+# 15. Build the api with "-ldflags" aka linker flags to reduce binary size
 # -s = disable symbol table
 # -w = disable DWARF generation
 RUN go build -ldflags "-s -w" -o main ./cmd/api
 
-# 17. Extend the base stage and create a new stage named prod
+# 16. Extend the base stage and create a new stage named prod
 FROM base as prod
 
-# 18. Copy only the files we want from a few stages into the prod stage
+# 17. Copy only the files we want from a few stages into the prod stage
 COPY --from=trivy result secure
 COPY --from=build-stage /api/main main
 
-# 19. Create a new group and user, recursively change directory ownership, then allow the binary to be executed
+# 18. Create a new group and user, recursively change directory ownership, then allow the binary to be executed
 RUN addgroup gopher && adduser -D -G gopher gopher \
     && chown -R gopher:gopher /api && \
     chmod +x ./main
 
-# 20. Change to a non-root user
+# 19. Change to a non-root user
 USER gopher
 
-# 21. Provide meta data about the port the container must expose
+# 20. Provide meta data about the port the container must expose
 EXPOSE 4000
 
-# 22. Define how Docker should test the container to check that it is still working
+# 21. Define how Docker should test the container to check that it is still working
 HEALTHCHECK CMD [ "wget", "-q", "0.0.0.0:4000" ]
 
-# 23. Provide the default command for the production container
+# 22. Provide the default command for the production container
 CMD ["./main"]

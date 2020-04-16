@@ -221,6 +221,52 @@ insert:
 	&& echo \
 	&& echo $(SUCCESS)
 
+build: 
+	@echo "\n[ build api production image ]"
+
+	docker build --target prod \
+	--build-arg backend=${REACT_APP_BACKEND} \
+	--tag devpies/go-delve-reload:client ./client
+
+	docker build --target prod \
+	--tag devpies/go-delve-reload:api ./api
+
+login: 
+	@echo "\n[ log into private registry ]"
+	cat ./secrets/registry_pass | docker login --username `cat ./secrets/registry_user` --password-stdin
+
+publish: login
+	@echo "\n[ publish production grade images ]"
+	docker push devpies/go-delve-reload:api
+	docker push devpies/go-delve-reload:client
+
+deploy:	login
+	@echo "\n[ startup production stack ]"
+	@cat ./startup
+	@docker stack deploy -c docker-stack.yml --with-registry-auth go-delve-reload
+	@echo "\n"
+
+metrics: 
+	@echo "\n[ enable docker engine metrics ]"
+	./init/enable-monitoring.sh
+
+secrets: 
+	@echo "\n[ create swarm secrets ]"
+	./init/create-secrets.sh
+.PHONY: secrets
+
+servers:
+	@echo "\n[ create servers ]"
+	./init/create-servers.sh
+
+servers-d:
+	@echo "\n[ teardown swarm ]"
+	./init/destroy-servers.sh
+
+swarm:
+	@echo "\n[ create swarm with all managers ]"
+	./init/create-swarm.sh
+
 .PHONY: all
 .PHONY: api
 .PHONY: cert
@@ -244,3 +290,12 @@ insert:
 .PHONY: seed
 .PHONY: up
 .PHONY: version
+.PHONY: build 
+.PHONY: login
+.PHONY: publish
+.PHONY: deploy
+.PHONY: metrics
+.PHONY: secrets
+.PHONY: servers
+.PHONY: servers-d
+.PHONY: swarm

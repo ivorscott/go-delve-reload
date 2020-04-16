@@ -1,3 +1,4 @@
+ARG backend
 # 1. Use the node apline image as the base stage of a multi-stage routine
 FROM node:12.16.1-alpine as base
 
@@ -42,10 +43,15 @@ COPY . .
 RUN npm audit
 
 # 15. Run unit tests in CI
-RUN CI=true npm test --env=jsdom
+# RUN CI=true npm test --env=jsdom
 
 # 16. Extend the test stage and create a new stage named build-stage
 FROM test as build-stage
+
+ARG backend
+
+RUN echo $'\n\
+    REACT_APP_API_URL='$backend$'' >> .env
 
 # 17. Build the production static assets
 RUN npm run build
