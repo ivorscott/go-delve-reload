@@ -26,21 +26,6 @@ services:
         - traefik.webservice.frontend.entryPoints=https
         - traefik.frontend.auth.basic.users=devpie:$$apr1$$cRAoevPx$$fMQ591BUA36Tq6Vh62QqX0
 
-  consul-replica:
-    image: consul
-    command: agent -server -client=0.0.0.0 -retry-join="consul-leader"
-    volumes:
-      - consul-data-replica:/consul/data
-    environment:
-      - CONSUL_BIND_INTERFACE=eth0
-      - 'CONSUL_LOCAL_CONFIG={"leave_on_terminate": true}'
-    networks:
-      - default
-      - traefik-public
-    deploy:
-      placement:
-        preferences:
-          - spread: node.id
   traefik:
     image: traefik:v1.7
     ports:

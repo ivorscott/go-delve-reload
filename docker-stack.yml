@@ -2,20 +2,22 @@ version: "3.7"
 
 services:
   api:
-    image: devpies/go-delve-reload:api
+    image: devpies/gdr-api
     secrets:
       - postgres_db
       - postgres_user
+      - postgres_host
       - postgres_passwd
     environment:
       CGO_ENABLED: 0
       API_DB_HOST: db
       API_WEB_ADDRESS: :4000
-      API_DB_DISABLE_TLS: "false"
+      API_DB_DISABLE_TLS: "true"
       API_WEB_PRODUCTION: "true"
       API_WEB_FRONTEND_ADDRESS: https://gdr.devpie.io/
       POSTGRES_DB: /run/secrets/postgres_db
       POSTGRES_USER: /run/secrets/postgres_user
+      POSTGRES_HOST: /run/secrets/postgres_host
       POSTGRES_PASSWORD: /run/secrets/postgres_passwd
     deploy:
       labels:
@@ -35,10 +37,9 @@ services:
         max_attempts: 3
     networks:
       - traefik-public
-      - postgres-network
 
   client:
-    image: devpies/go-delve-reload:client
+    image: devpies/gdr-client
     deploy:
       labels:
         - traefik.frontend.rule=Host:gdr.devpie.io
@@ -55,34 +56,14 @@ services:
     networks:
       - traefik-public
 
-  db:
-    image: postgres:11.6
-    secrets:
-      - postgres_db
-      - postgres_user
-      - postgres_passwd
-    environment:
-      POSTGRES_DB_FILE: /run/secrets/postgres_db
-      POSTGRES_USER_FILE: /run/secrets/postgres_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_passwd
-    ports:
-      - 5432:5432
-    volumes:
-      - postgres-db:/seed
-    networks:
-      - postgres-network
-
 networks:
-  postgres-network:
-    external: true
   traefik-public:
     external: true
 
-volumes:
-  postgres-db:
-
 secrets:
   postgres_db:
+    external: true
+  postgres_host:
     external: true
   postgres_passwd:
     external: true

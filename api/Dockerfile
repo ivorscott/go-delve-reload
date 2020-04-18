@@ -48,12 +48,10 @@ FROM dev as build-stage
 # 13. Copy the remaining api code into /api in the image's filesystem
 COPY . .
 
-# 14. Disable CGO and pass in frontend web address argument
-RUN export CGO_ENABLED=0
 # 15. Build the api with "-ldflags" aka linker flags to reduce binary size
 # -s = disable symbol table
 # -w = disable DWARF generation
-RUN go build -ldflags "-s -w" -o main ./cmd/api
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api
 
 # 16. Extend the base stage and create a new stage named prod
 FROM base as prod
@@ -73,8 +71,8 @@ USER gopher
 # 20. Provide meta data about the port the container must expose
 EXPOSE 4000
 
-# 21. Define how Docker should test the container to check that it is still working
-HEALTHCHECK CMD [ "wget", "-q", "0.0.0.0:4000" ]
-
-# 22. Provide the default command for the production container
+# 21. Provide the default command for the production container
 CMD ["./main"]
+
+# 22. Define how Docker should test the container to check that it is still working
+HEALTHCHECK CMD [ "wget", "-q", "0.0.0.0:4000" ]

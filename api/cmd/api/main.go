@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	_ "net/http/pprof" // Register the pprof handlers
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,6 +35,7 @@ func run() error {
 	var cfg struct {
 		Web struct {
 			Address         string        `conf:"default:localhost:4000"`
+			Debug           string        `conf:"default:localhost:6060"`
 			Production      bool          `conf:"default:false"`
 			ReadTimeout     time.Duration `conf:"default:5s"`
 			WriteTimeout    time.Duration `conf:"default:5s"`
@@ -109,6 +111,16 @@ func run() error {
 	var discardLog *log.Logger
 
 	if !cfg.Web.Production {
+
+		go func() {
+
+			log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
+			err := http.ListenAndServe(cfg.Web.Debug, nil)
+			if err != nil {
+				log.Printf("main: Debug service stopped %v", err)
+			}
+		}()
+
 		// Prevent the HTTP server from logging stuff on its own.
 		// The things we care about we log ourselves.
 		// Prevents "tls: unknown certificate" errors caused by self-signed certificates.

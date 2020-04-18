@@ -226,10 +226,10 @@ build:
 
 	docker build --target prod \
 	--build-arg backend=${REACT_APP_BACKEND} \
-	--tag devpies/go-delve-reload:client ./client
+	--tag devpies/gdr-client ./client
 
 	docker build --target prod \
-	--tag devpies/go-delve-reload:api ./api
+	--tag devpies/gdr-api ./api
 
 login: 
 	@echo "\n[ log into private registry ]"
@@ -237,8 +237,8 @@ login:
 
 publish: login
 	@echo "\n[ publish production grade images ]"
-	docker push devpies/go-delve-reload:api
-	docker push devpies/go-delve-reload:client
+	docker push devpies/gdr-api
+	docker push devpies/gdr-client
 
 deploy:	login
 	@echo "\n[ startup production stack ]"
