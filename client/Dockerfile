@@ -1,4 +1,6 @@
 ARG backend
+ARG version
+
 # 1. Use the node apline image as the base stage of a multi-stage routine
 FROM node:12.16.1-alpine as base
 
@@ -49,9 +51,11 @@ RUN npm audit
 FROM test as build-stage
 
 ARG backend
+ARG version
 
 RUN echo $'\n\
-    REACT_APP_API_URL='$backend$'' >> .env
+    REACT_APP_BACKEND='$backend$'\n\
+    REACT_APP_VERSION='$version$'' >> .env
 
 # 17. Build the production static assets
 RUN npm run build

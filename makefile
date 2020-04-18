@@ -225,6 +225,7 @@ build:
 	@echo "\n[ build api production image ]"
 
 	docker build --target prod \
+	--build-arg version=${REACT_APP_VERSION} \
 	--build-arg backend=${REACT_APP_BACKEND} \
 	--tag devpies/gdr-client ./client
 
