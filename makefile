@@ -243,7 +243,7 @@ publish: login
 deploy:	login
 	@echo "\n[ startup production stack ]"
 	@cat ./startup
-	@docker stack deploy -c docker-stack.yml --with-registry-auth go-delve-reload
+	@docker stack deploy -c docker-stack.yml --with-registry-auth gdr
 	@echo "\n"
 
 metrics: 

@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   consul-leader:
-    image: consul
+    image: consul:1.7
     command: agent -server -client=0.0.0.0 -bootstrap -ui
     volumes:
       - consul-data-leader:/consul/data
@@ -79,8 +79,6 @@ services:
 
 volumes:
   consul-data-leader:
-    external: true
-  consul-data-replica:
     external: true
 
 networks:

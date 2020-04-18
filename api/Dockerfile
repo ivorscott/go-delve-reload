@@ -2,6 +2,7 @@
 # Use the golang alpine image as the base stage of a multi-stage routine
 FROM golang:1.14-alpine as base
 
+ENV CGO_ENABLED=0 
 # 2. WORKDIR sets the working directory for any subsequent COPY, CMD, or RUN instructions
 # Set the working directory to /api
 WORKDIR /api
@@ -48,25 +49,15 @@ FROM dev as build-stage
 # 13. Copy the remaining api code into /api in the image's filesystem
 COPY . .
 
-# 15. Build the api with "-ldflags" aka linker flags to reduce binary size
-# -s = disable symbol table
-# -w = disable DWARF generation
-RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api
+# 15. Build api
+RUN go build -o main ./cmd/api
 
 # 16. Extend the base stage and create a new stage named prod
-FROM base as prod
+FROM alpine:3.7 as prod
 
 # 17. Copy only the files we want from a few stages into the prod stage
 COPY --from=trivy result secure
 COPY --from=build-stage /api/main main
-
-# 18. Create a new group and user, recursively change directory ownership, then allow the binary to be executed
-RUN addgroup gopher && adduser -D -G gopher gopher \
-    && chown -R gopher:gopher /api && \
-    chmod +x ./main
-
-# 19. Change to a non-root user
-USER gopher
 
 # 20. Provide meta data about the port the container must expose
 EXPOSE 4000

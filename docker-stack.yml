@@ -9,11 +9,12 @@ services:
       - postgres_host
       - postgres_passwd
     environment:
-      CGO_ENABLED: 0
-      API_DB_HOST: db
-      API_WEB_ADDRESS: :4000
       API_DB_DISABLE_TLS: "true"
       API_WEB_PRODUCTION: "true"
+      API_WEB_ADDRESS: :4000
+      API_WEB_READ_TIMEOUT: 7s
+      API_WEB_WRITE_TIMEOUT: 7s
+      API_WEB_SHUTDOWN_TIMEOUT: 7s
       API_WEB_FRONTEND_ADDRESS: https://gdr.devpie.io/
       POSTGRES_DB: /run/secrets/postgres_db
       POSTGRES_USER: /run/secrets/postgres_user

@@ -79,3 +79,5 @@ EXPOSE 80
 
 # 24. Define how Docker should test the container to check that it is still working
 HEALTHCHECK CMD [ "wget", "-q", "0.0.0.0:80" ]
+
+CMD ["nginx", "-g", "daemon off;"]
