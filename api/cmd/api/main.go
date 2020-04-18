@@ -105,22 +105,21 @@ func run() error {
 	}
 	defer repo.Close()
 
+	go func() {
+
+		log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
+		err := http.ListenAndServe(cfg.Web.Debug, nil)
+		if err != nil {
+			log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
+		}
+	}()
+
 	// =========================================================================
 	// Start API Service
 
 	var discardLog *log.Logger
 
 	if !cfg.Web.Production {
-
-		go func() {
-
-			log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
-			err := http.ListenAndServe(cfg.Web.Debug, nil)
-			if err != nil {
-				log.Printf("main: Debug service stopped %v", err)
-			}
-		}()
-
 		// Prevent the HTTP server from logging stuff on its own.
 		// The things we care about we log ourselves.
 		// Prevents "tls: unknown certificate" errors caused by self-signed certificates.

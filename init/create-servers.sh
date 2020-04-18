@@ -9,5 +9,6 @@ docker-machine create \
   --digitalocean-ssh-key-fingerprint=`cat ./secrets/ssh_fingerprint` \
   --digitalocean-tags=gdr \
   --digitalocean-private-networking=true \
+  --digitalocean-region="lon1" \
   gdr${server} &
 done

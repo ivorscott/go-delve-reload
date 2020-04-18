@@ -9,12 +9,12 @@ WORKDIR /api
 
 # 3. Extend aquasecurity's trivy image and create a new stage named trivy
 # Used for robust image scanning
-FROM aquasec/trivy:0.4.4 as trivy 
+# FROM aquasec/trivy:0.4.4 as trivy 
 
 # 4. RUN executes commands on top of the current image as a new layer and commits the results
 # Scan the golang alpine image before production use
-RUN trivy --debug --timeout 4m golang:1.14-alpine \ 
-    && echo "No image vulnerabilities" > result
+# RUN trivy --debug --timeout 4m golang:1.14-alpine \ 
+#     && echo "No image vulnerabilities" > result
 
 # 5. Extend the base stage and create a new stage named dev
 FROM base as dev
@@ -28,15 +28,15 @@ RUN go mod download
 
 # 8. ENV sets an environment variable
 # Create GOPATH and PATH environment variables
-ENV GOPATH /go
-ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+# ENV GOPATH /go
+# ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 # 9. Print go environment for debugging purposes
 RUN go env
 
 # 10. Install development dependencies to debug and live reload api
-RUN go get github.com/go-delve/delve/cmd/dlv \
-    && go get github.com/githubnemo/CompileDaemon
+# RUN go get github.com/go-delve/delve/cmd/dlv \
+#     && go get github.com/githubnemo/CompileDaemon
 
 # 11. Provide meta data about the ports the container must expose
 # port 4000 -> api port
@@ -53,10 +53,10 @@ COPY . .
 RUN go build -o main ./cmd/api
 
 # 16. Extend the base stage and create a new stage named prod
-FROM alpine:3.7 as prod
+FROM alpine:3.11.5 as prod
 
 # 17. Copy only the files we want from a few stages into the prod stage
-COPY --from=trivy result secure
+# COPY --from=trivy result secure
 COPY --from=build-stage /api/main main
 
 # 20. Provide meta data about the port the container must expose
@@ -64,6 +64,3 @@ EXPOSE 4000
 
 # 21. Provide the default command for the production container
 CMD ["./main"]
-
-# 22. Define how Docker should test the container to check that it is still working
-HEALTHCHECK CMD [ "wget", "-q", "0.0.0.0:4000" ]

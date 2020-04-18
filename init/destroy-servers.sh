@@ -3,7 +3,7 @@ set -x
 
 # delete all docker machines starting with dvc
 for server in 1; do
-docker-machine rm -y node${server} &
+docker-machine rm -y gdr${server} &
 done
 
 # delete all storage in DO (be sure you are ok deleting ALL storage in an account)
