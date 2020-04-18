@@ -34,7 +34,6 @@ services:
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.users=devpie:$$apr1$$cRAoevPx$$fMQ591BUA36Tq6Vh62QqX0
       restart_policy:
         condition: on-failure
         max_attempts: 3
@@ -57,7 +56,6 @@ services:
         - traefik.redirectorservice.frontend.redirect.entryPoint=https
         # Traefik service that listens to HTTPS
         - traefik.webservice.frontend.entryPoints=https
-        - traefik.frontend.auth.basic.users=devpie:$$apr1$$cRAoevPx$$fMQ591BUA36Tq6Vh62QqX0
     networks:
       - traefik-public
 
