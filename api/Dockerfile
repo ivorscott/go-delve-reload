@@ -2,65 +2,65 @@
 # Use the golang alpine image as the base stage of a multi-stage routine
 FROM golang:1.14-alpine as base
 
+# 2. ENV CGO_ENABLED=0 diables CGO which is required for production builds
 ENV CGO_ENABLED=0 
-# 2. WORKDIR sets the working directory for any subsequent COPY, CMD, or RUN instructions
+
+# 3. WORKDIR sets the working directory for any subsequent COPY, CMD, or RUN instructions
 # Set the working directory to /api
 WORKDIR /api
 
-# 3. Extend aquasecurity's trivy image and create a new stage named trivy
-# Used for robust image scanning
-# FROM aquasec/trivy:0.4.4 as trivy 
-
-# 4. RUN executes commands on top of the current image as a new layer and commits the results
-# Scan the golang alpine image before production use
-# RUN trivy --debug --timeout 4m golang:1.14-alpine \ 
-#     && echo "No image vulnerabilities" > result
-
-# 5. Extend the base stage and create a new stage named dev
+# 4. Extend the base stage and create a new stage named dev
 FROM base as dev
 
-# 6. COPY copies files or folders from source to the destination path in the image's filesystem
+# 5. COPY copies files or folders from source to the destination path in the image's filesystem
 # Copy the go.mod and go.sum files to /api in the image's filesystem
 COPY go.* ./
 
-# 7. Install go module dependencies in the image's filesystem
+# 6. Install go module dependencies in the image's filesystem
 RUN go mod download
 
-# 8. ENV sets an environment variable
+# 7. ENV sets an environment variable
 # Create GOPATH and PATH environment variables
-# ENV GOPATH /go
-# ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+ENV GOPATH /go
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
-# 9. Print go environment for debugging purposes
+# 8. Print go environment for debugging purposes
 RUN go env
 
-# 10. Install development dependencies to debug and live reload api
-# RUN go get github.com/go-delve/delve/cmd/dlv \
-#     && go get github.com/githubnemo/CompileDaemon
+# 9. Install development dependencies to debug and live reload api
+RUN go get github.com/go-delve/delve/cmd/dlv \
+    && go get github.com/githubnemo/CompileDaemon
 
-# 11. Provide meta data about the ports the container must expose
+# 10. Provide meta data about the ports the container must expose
 # port 4000 -> api port
 # port 2345 -> debugger port
 EXPOSE 4000 2345
 
-# 12. Extend the dev stage and create a new stage named build-stage
+# 11. Extend the dev stage and create a new stage named build-stage
 FROM dev as build-stage
 
-# 13. Copy the remaining api code into /api in the image's filesystem
+# 12. Copy the remaining api code into /api in the image's filesystem
 COPY . .
 
-# 15. Build api
+# 13. Build api
 RUN go build -o main ./cmd/api
 
-# 16. Extend the base stage and create a new stage named prod
+# 15. Install aquasecurity's trivy for robust image scanning
+FROM aquasec/trivy:0.4.4 as trivy
+
+# 16. Scan the alpine image before production use
+RUN trivy alpine:3.11.5 && \
+    echo "No image vulnerabilities" > result
+
+# 17. Extend the base stage and create a new stage named prod
 FROM alpine:3.11.5 as prod
 
-# 17. Copy only the files we want from a few stages into the prod stage
-# COPY --from=trivy result secure
+# 18. Copy the build into the prod stage and leave everything else behind
+COPY --from=trivy result secure
 COPY --from=build-stage /api/main main
 
-# 20. Provide meta data about the port the container must expose
+# 19. Provide meta data about the port the container must expose
 EXPOSE 4000
 
-# 21. Provide the default command for the production container
+# 20. Provide the default command for the production container
 CMD ["./main"]
