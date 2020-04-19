@@ -12,12 +12,14 @@ services:
       API_DB_DISABLE_TLS: "true"
       API_WEB_PRODUCTION: "false"
       API_WEB_ADDRESS: :$API_PORT
+      API_WEB_DEBUG: :$PPROF_PORT
       API_WEB_READ_TIMEOUT: 7s
       API_WEB_WRITE_TIMEOUT: 7s
       API_WEB_SHUTDOWN_TIMEOUT: 7s
       API_WEB_FRONTEND_ADDRESS: https://localhost:$CLIENT_PORT
     ports:
       - $API_PORT:$API_PORT
+      - $PPROF_PORT:$PPROF_PORT
     volumes:
       - ./api:/api
     networks:
