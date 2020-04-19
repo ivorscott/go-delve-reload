@@ -73,8 +73,8 @@ secrets:
   postgres_user:
     external: true
 # secrets:
-#   postgres_db:
-#     file: ./prod_secrets/postgres_db
+# postgres_db:
+#   file: ./prod_secrets/postgres_db
 #   postgres_passwd:
 #     file: ./prod_secrets/postgres_passwd
 #   postgres_host:

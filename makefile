@@ -236,11 +236,12 @@ publish: login
 	docker push devpies/gdr-api
 	docker push devpies/gdr-client
 
-deploy:	login
+deploy:	build publish
 	@echo "\n[ startup production stack ]"
 	@cat ./startup
 	@docker stack deploy -c docker-stack.yml --with-registry-auth gdr
 	@echo "\n"
+	@watch docker service ls
 
 metrics: 
 	@echo "\n[ enable docker engine metrics ]"

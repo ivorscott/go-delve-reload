@@ -62,5 +62,8 @@ COPY --from=build-stage /api/main main
 # 19. Provide meta data about the port the container must expose
 EXPOSE 4000
 
-# 20. Provide the default command for the production container
+# 20. Verify health of production container
+HEALTHCHECK --interval=3s --timeout=3s CMD wget --spider -q http://localhost:4000/v1/health || exit 1
+
+# 21. Provide the default command for the production container
 CMD ["./main"]

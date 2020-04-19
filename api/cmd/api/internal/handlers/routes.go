@@ -20,6 +20,11 @@ func API(shutdown chan os.Signal, repo *database.Repository, log *log.Logger, Fr
 		AllowCredentials: true,
 	})
 
+	{
+		c := HealthCheck{repo: repo}
+		app.Handle(http.MethodGet, "/v1/health", c.Health)
+	}
+
 	p := Products{repo: repo, log: log}
 
 	app.Handle(http.MethodGet, "/v1/products", p.List)

@@ -84,5 +84,8 @@ COPY --from=build-stage /client/app/nginx /etc/nginx/
 # 26. Provide meta data about the port the container must expose
 EXPOSE 80
 
-# 27. Run nginx
+# 27. Verify health of production container
+HEALTHCHECK --interval=3s --timeout=3s CMD wget --spider -q http://localhost:80 || exit 1
+
+# 28. Run nginx
 CMD ["nginx", "-g", "daemon off;"]
