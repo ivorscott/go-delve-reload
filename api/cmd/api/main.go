@@ -30,6 +30,12 @@ func run() error {
 	infolog := log.New(os.Stdout, "GO-DELVE-RELOAD: ", log.Lmicroseconds|log.Lshortfile)
 
 	// =========================================================================
+	// App Starting
+
+	infolog.Printf("main : Started")
+	defer infolog.Println("main : Completed")
+
+	// =========================================================================
 	// Configuration
 
 	var cfg struct {
@@ -51,12 +57,6 @@ func run() error {
 		}
 	}
 
-	// =========================================================================
-	// App Starting
-
-	infolog.Printf("main : Started")
-	defer infolog.Println("main : Completed")
-
 	if err := conf.Parse(os.Args[1:], "API", &cfg); err != nil {
 		if err == conf.ErrHelpWanted {
 			usage, err := conf.Usage("API", &cfg)
@@ -68,6 +68,25 @@ func run() error {
 		}
 		return errors.Wrap(err, "parsing config")
 	}
+
+	out, err := conf.String(&cfg)
+	if err != nil {
+		return errors.Wrap(err, "generating config for output")
+	}
+
+	infolog.Printf("main : Config :\n%v\n", out)
+
+	// =========================================================================
+	// Enabled Profiler
+
+	go func() {
+
+		log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
+		err := http.ListenAndServe(cfg.Web.Debug, nil)
+		if err != nil {
+			log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
+		}
+	}()
 
 	// =========================================================================
 	// Enabled Docker Secrets
@@ -84,12 +103,6 @@ func run() error {
 		cfg.DB.Password = dockerSecrets.Get("postgres_passwd")
 	}
 
-	out, err := conf.String(&cfg)
-	if err != nil {
-		return errors.Wrap(err, "generating config for output")
-	}
-	infolog.Printf("main : Config :\n%v\n", out)
-
 	// =========================================================================
 	// Start Database
 
@@ -105,26 +118,18 @@ func run() error {
 	}
 	defer repo.Close()
 
-	go func() {
-
-		log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
-		err := http.ListenAndServe(cfg.Web.Debug, nil)
-		if err != nil {
-			log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
-		}
-	}()
-
 	// =========================================================================
-	// Start API Service
+	// Clean Logs
 
 	var discardLog *log.Logger
 
 	if !cfg.Web.Production {
-		// Prevent the HTTP server from logging stuff on its own.
-		// The things we care about we log ourselves.
 		// Prevents "tls: unknown certificate" errors caused by self-signed certificates.
 		discardLog = log.New(ioutil.Discard, "", 0)
 	}
+
+	// =========================================================================
+	// Start API Service
 
 	// Make a channel to listen for shutdown signal from the OS.
 	shutdown := make(chan os.Signal, 1)
