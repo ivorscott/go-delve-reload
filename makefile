@@ -100,12 +100,7 @@ exec:
 
 test-client:
 	@echo [ running client tests ... ]
-	@cd client; npx jest --notify
-	@cd ..
-
-test-client-watch:
-	@echo [ running client tests ... ]
-	@cd client; npx jest --watchAll
+	@cd client; npm run test:watch
 	@cd ..
 
 test-api:

@@ -510,8 +510,6 @@ make test-api # run api tests
 
 make test-client # run client tests
 
-make test-client-watch # run client tests and watch
-
 make migration <name> # create a migration
 
 make version # print current migration version

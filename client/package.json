@@ -70,7 +70,8 @@
   "scripts": {
     "start": "HTTPS=true REACT_APP_API_URL=https://localhost:4000/v1 node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "test:watch": "npm run test -- --watchAll"
   },
   "eslintConfig": {
     "extends": "react-app"
