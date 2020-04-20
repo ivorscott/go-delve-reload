@@ -24,11 +24,21 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 - Aliases
 - Makefile Deployment
 
+### Requirements
+
+- VSCode
+- Docker
+- DockerHub Account
+- Digital Ocean Account
+- A Domain Name (Try Namecheap)
+- Docker Machine
+- Managed Database (ElephantSQL is Free)
+
 ## The Ultimate Go and React Series
 
 ### Building A Workflow
 
-[The Ultimate Go and React Development Setup with Docker (Part 1)](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker)
+[The Ultimate Go and React Development Setup with Docker (Part 1)](https://github.com/ivorscott/go-delve-reload)
 
 <details>
 
@@ -51,14 +61,14 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 
 ### Building A Better API
 
-The Ultimate Go and React Development Setup with Docker (Part 2)
+[The Ultimate Go and React Development Setup with Docker (Part 2)](https://github.com/ivorscott/go-delve-reload/tree/part2)
 
 <details>
   <summary>See content</summary>
 
   <br/>
 
-- Initial Changes From Part 1
+- Profiling
 - Graceful Shutdown
 - Seeding & Migrations (With Go-Migrate)
 - Package Oriented Design
@@ -71,17 +81,15 @@ The Ultimate Go and React Development Setup with Docker (Part 2)
 
 </details>
 
-### Security and Awareness: OAuth, Observability, And Profiling
+### Security and Awareness: OAuth and Observability
 
-The Ultimate Go and React Development Setup with Docker (Part 3)
+[The Ultimate Go and React Development Setup with Docker (Part 3)](https://github.com/ivorscott/go-delve-reload/tree/part3)
 
 <details>
   <summary>See content</summary>
 
   <br/>
 
-- Health checks
-- Profiling
 - Open Telemetry
 - OAuth & Auth0
 - Authentication
@@ -91,7 +99,7 @@ The Ultimate Go and React Development Setup with Docker (Part 3)
 
 ### Docker Swarm and Traefik
 
-The Ultimate Go and React Production Setup with Docker (Part 4)
+[The Ultimate Go and React Production Setup with Docker (Part 4)](https://github.com/ivorscott/go-delve-reload/tree/part4)
 
 <details>
   <summary>See content</summary>

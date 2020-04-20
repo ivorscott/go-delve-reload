@@ -16,7 +16,7 @@ services:
       API_WEB_READ_TIMEOUT: 7s
       API_WEB_WRITE_TIMEOUT: 7s
       API_WEB_SHUTDOWN_TIMEOUT: 7s
-      API_WEB_FRONTEND_ADDRESS: https://localhost:$CLIENT_PORT
+      API_WEB_FRONTEND_ADDRESS: $API_WEB_FRONTEND_ADDRESS
     ports:
       - $API_PORT:$API_PORT
       - $PPROF_PORT:$PPROF_PORT
@@ -35,7 +35,7 @@ services:
     container_name: client
     environment:
       HTTPS: "true"
-      REACT_APP_BACKEND: https://localhost:$API_PORT/v1
+      REACT_APP_BACKEND: $REACT_APP_BACKEND
       CHOKIDAR_USEPOLLING: "true"
     ports:
       - $CLIENT_PORT:$CLIENT_PORT
@@ -61,7 +61,7 @@ services:
       API_WEB_READ_TIMEOUT: 7s
       API_WEB_WRITE_TIMEOUT: 7s
       API_WEB_SHUTDOWN_TIMEOUT: 7s
-      API_WEB_FRONTEND_ADDRESS: "https://localhost:3000"
+      API_WEB_FRONTEND_ADDRESS: $API_WEB_FRONTEND_ADDRESS
     volumes:
       - ./api:/api
     ports:
