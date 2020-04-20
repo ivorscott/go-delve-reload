@@ -11,8 +11,8 @@ WORKDIR /client
 # 4. Copy both package.json and package-lock.json into /client in the image's filesystem
 COPY package*.json ./
 
-# 5. Install development dependencies
-RUN npm install --only=development && npm cache clean --force
+# 5. Install dependencies and clean up after
+RUN npm install && npm cache clean --force
 
 # 6. Print npm configuration for debugging purposes
 RUN npm config list
@@ -24,7 +24,7 @@ ENV PATH /client/node_modules/.bin:$PATH
 # 8. Provide meta data about the port the container must expose
 EXPOSE 3000
 
-# 9. Set the working directory to /client/app
+# 9. Set the working directory to /client/app (we bind mount the code here in development)
 WORKDIR /client/app
 
 # 10. Provide the default command for the development container
@@ -33,17 +33,17 @@ CMD ["npm", "run", "start"]
 # 11. Extend the dev stage and create a new stage called test
 FROM dev as test
 
-# 12. Copy both package.json and package-lock.json to /client/app for testing and build
-COPY package*.json ./
+# 12. Set the working directory to /client/app
+WORKDIR /client
 
-# 13. Run node_module vulnerability checks
+# 13. Copy the client folder source code into the image's filesystem
+COPY . .
+
+# 14. Run node_module vulnerability checks
 RUN npm audit
 
-# 14. Install production dependencies
-RUN npm ci --silent
-
-# 15. Copy the client folder source code into the image's filesystem
-COPY . .
+# 15. Install production dependencies
+RUN npm install --silent
 
 # 16. Run unit tests
 RUN CI=true npm run test
@@ -75,11 +75,11 @@ FROM nginx:1.17-alpine as prod
 
 # 24. Copy only the files we want from a few stages into the prod stage
 COPY --from=trivy result secure
-COPY --from=build-stage /client/app/build /usr/share/nginx/html
+COPY --from=build-stage /client/build /usr/share/nginx/html
 
 # 25. Copy non-root user nginx configuration
 # https://hub.docker.com/_/nginx
-COPY --from=build-stage /client/app/nginx /etc/nginx/
+COPY --from=build-stage /client/nginx /etc/nginx/
 
 # 26. Provide meta data about the port the container must expose
 EXPOSE 80
