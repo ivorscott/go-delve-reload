@@ -49,10 +49,10 @@ func run() error {
 			FrontendAddress string        `conf:"default:https://localhost:3000"`
 		}
 		DB struct {
-			User       string `conf:"default:postgres"`
+			User       string `conf:"default:postgres,noprint"`
 			Password   string `conf:"default:postgres,noprint"`
-			Host       string `conf:"default:localhost"`
-			Name       string `conf:"default:postgres"`
+			Host       string `conf:"default:localhost,noprint"`
+			Name       string `conf:"default:postgres,noprint"`
 			DisableTLS bool   `conf:"default:false"`
 		}
 	}
@@ -67,6 +67,21 @@ func run() error {
 			return nil
 		}
 		return errors.Wrap(err, "parsing config")
+	}
+
+	// =========================================================================
+	// Enabled Docker Secrets
+
+	if cfg.Web.Production {
+		dockerSecrets, err := secrets.NewDockerSecrets()
+		if err != nil {
+			log.Fatalf("error : retrieving docker secrets failed : %v", err)
+		}
+
+		cfg.DB.Name = dockerSecrets.Get("postgres_db")
+		cfg.DB.User = dockerSecrets.Get("postgres_user")
+		cfg.DB.Host = dockerSecrets.Get("postgres_host")
+		cfg.DB.Password = dockerSecrets.Get("postgres_passwd")
 	}
 
 	out, err := conf.String(&cfg)
@@ -87,21 +102,6 @@ func run() error {
 			log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
 		}
 	}()
-
-	// =========================================================================
-	// Enabled Docker Secrets
-
-	if cfg.Web.Production {
-		dockerSecrets, err := secrets.NewDockerSecrets()
-		if err != nil {
-			log.Fatalf("error : retrieving docker secrets failed : %v", err)
-		}
-
-		cfg.DB.Name = dockerSecrets.Get("postgres_db")
-		cfg.DB.User = dockerSecrets.Get("postgres_user")
-		cfg.DB.Host = dockerSecrets.Get("postgres_host")
-		cfg.DB.Password = dockerSecrets.Get("postgres_passwd")
-	}
 
 	// =========================================================================
 	// Start Database
