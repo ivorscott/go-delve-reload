@@ -236,7 +236,7 @@ publish: login
 	docker push devpies/gdr-api
 	docker push devpies/gdr-client
 
-deploy:	build publish
+deploy:
 	@echo "\n[ startup production stack ]"
 	@cat ./startup
 	@docker stack deploy -c docker-stack.yml --with-registry-auth gdr

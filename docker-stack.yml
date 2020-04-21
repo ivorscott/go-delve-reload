@@ -15,7 +15,7 @@ services:
       API_WEB_READ_TIMEOUT: 7s
       API_WEB_WRITE_TIMEOUT: 7s
       API_WEB_SHUTDOWN_TIMEOUT: 7s
-      API_WEB_FRONTEND_ADDRESS: https://gdr.devpie.io
+      API_WEB_FRONTEND_ADDRESS: https://gdr.ivorscott.com
       POSTGRES_DB: /run/secrets/postgres_db
       POSTGRES_USER: /run/secrets/postgres_user
       POSTGRES_HOST: /run/secrets/postgres_host
@@ -24,7 +24,7 @@ services:
     #   - 4000:4000
     deploy:
       labels:
-        - traefik.frontend.rule=Host:api.gdr.devpie.io
+        - traefik.frontend.rule=Host:api.gdr.ivorscott.com
         - traefik.enable=true
         - traefik.port=4000
         - traefik.tags=traefik-public
@@ -46,7 +46,7 @@ services:
     #   - 80:80
     deploy:
       labels:
-        - traefik.frontend.rule=Host:gdr.devpie.io
+        - traefik.frontend.rule=Host:gdr.ivorscott.com
         - traefik.enable=true
         - traefik.port=80
         - traefik.tags=traefik-public
