@@ -42,50 +42,47 @@ COPY . .
 # 14. Run node_module vulnerability checks
 RUN npm audit
 
-# 15. Install production dependencies
-RUN npm install --silent
-
-# 16. Run unit tests
+# 15. Run unit tests
 RUN CI=true npm run test
 
-# 17. Extend the test stage and create a new stage named build-stage
+# 16. Extend the test stage and create a new stage named build-stage
 FROM test as build-stage
 
-# 18. Use ARGs in build-stage
+# 17. Use ARGs in build-stage
 ARG backend
 ARG version
 
-# 19. Create .env file for static build with production vars
+# 18. Create .env file for static build with production vars
 RUN echo $'\n\
     REACT_APP_BACKEND='$backend$'\n\
     REACT_APP_VERSION='$version$'' >> .env
 
-# 20. Build the production static assets
+# 19. Build the production static assets
 RUN npm run build
 
-# 21. Install aquasecurity's trivy for robust image scanning
+# 20. Install aquasecurity's trivy for robust image scanning
 FROM aquasec/trivy:0.4.4 as trivy
 
-# 22. Scan the nginx alpine image before production use
+# 21. Scan the nginx alpine image before production use
 RUN trivy nginx:1.17-alpine && \
     echo "No image vulnerabilities" > result
 
-# 23. Extend the nginx apline image and create a new stage named prod
+# 22. Extend the nginx apline image and create a new stage named prod
 FROM nginx:1.17-alpine as prod
 
-# 24. Copy only the files we want from a few stages into the prod stage
+# 23. Copy only the files we want from a few stages into the prod stage
 COPY --from=trivy result secure
 COPY --from=build-stage /client/build /usr/share/nginx/html
 
-# 25. Copy non-root user nginx configuration
+# 24. Copy non-root user nginx configuration
 # https://hub.docker.com/_/nginx
 COPY --from=build-stage /client/nginx /etc/nginx/
 
-# 26. Provide meta data about the port the container must expose
+# 25. Provide meta data about the port the container must expose
 EXPOSE 80
 
-# 27. Verify health of production container
+# 26. Verify health of production container
 HEALTHCHECK --interval=3s --timeout=3s CMD wget --spider -q http://localhost:80 || exit 1
 
-# 28. Run nginx
+# 27. Run nginx
 CMD ["nginx", "-g", "daemon off;"]
