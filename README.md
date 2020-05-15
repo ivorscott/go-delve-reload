@@ -1,14 +1,6 @@
-# go-delve-reload
+# The Go and React Series
 
-![Minion](docs/demo.png)
-
-## The Ultimate Go and React Production Setup with Docker (Part 2)
-
-### Docker Swarm and Traefik Deployment
-
-This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-production-setup-with-docker-part-2).
-
-[Previous blog post](https://blog.ivorscott.com/ultimate-go-react-production-setup-with-docker)
+## Deploying with Swarm and Traefik pt.7
 
 ## Contents
 
@@ -36,7 +28,7 @@ This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate
 ```
 git clone https://github.com/ivorscott/go-delve-reload
 cd go-delve-reload
-git checkout part4
+git checkout part7
 ```
 
 [Setup VSCode](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#setting-up-vscode)
@@ -290,11 +282,9 @@ make seed <name> # create seed filename
 make insert <name> # insert seed file to database
 ```
 
-## The Ultimate Go and React Series
+## The Go and React Series
 
-### Building A Workflow
-
-[The Ultimate Go and React Development Setup with Docker (Part 1)](https://github.com/ivorscott/go-delve-reload)
+### Go and React Development with Docker pt.1
 
 <details>
 
@@ -315,31 +305,66 @@ make insert <name> # insert seed file to database
 
 </details>
 
-### Building A Better API
+### Transitioning to Go pt.2
 
-[The Ultimate Go and React Development Setup with Docker (Part 2)](https://github.com/ivorscott/go-delve-reload/tree/part2)
+<details>
+
+  <summary>See content</summary>
+
+  <br/>
+
+- Why Go?
+- Challenges
+
+</details>
+
+### Building an API with Go pt.3
 
 <details>
   <summary>See content</summary>
 
   <br/>
 
-- Profiling
-- Graceful Shutdown
-- Seeding & Migrations (With Go-Migrate)
 - Package Oriented Design
-- Fluent SQL Generation (With Squirrel)
+- Configuration
+- Database Connection
+- Docker Secrets
+- Graceful Shutdown
+- Middleware
+- Handling Requests
 - Error Handling
-- Cancellation
-- Request Validation
-- Request Logging
+- Seeding & Migrations (With Go-Migrate)
 - Integration Testing (With TestContainers-Go)
 
 </details>
 
-### Security and Awareness: OAuth and Observability
+### My API Workflow with Go pt.4
 
-[The Ultimate Go and React Development Setup with Docker (Part 3)](https://github.com/ivorscott/go-delve-reload/tree/part3)
+<details>
+  <summary>See content</summary>
+
+  <br/>
+
+- A Demo
+- Profiling
+
+</details>
+
+### OAuth 2 with Auth0 in Go pt.5
+
+<details>
+  <summary>See content</summary>
+
+  <br/>
+
+- OAuth
+- Auth0
+- Authentication
+- Authorization
+
+</details>
+
+### Observability Metrics in Go pt.6
 
 <details>
   <summary>See content</summary>
@@ -347,15 +372,12 @@ make insert <name> # insert seed file to database
   <br/>
 
 - Open Telemetry
-- OAuth & Auth0
-- Authentication
-- Authorization
+- Prometheus
+- Grafana
 
 </details>
 
-### Docker Swarm and Traefik
-
-[The Ultimate Go and React Production Setup with Docker](https://github.com/ivorscott/go-delve-reload/tree/part4)
+### Deploying with Swarm and Traefik pt.7
 
 <details>
   <summary>See content</summary>
@@ -372,9 +394,7 @@ make insert <name> # insert seed file to database
 
 </details>
 
-### Continuous Integration And Continuous Delivery
-
-The Ultimate Go and React Production Setup with Docker (Part 2)
+### CICD with Portainer and Drone pt.8
 
 <details>
   <summary>See content</summary>
