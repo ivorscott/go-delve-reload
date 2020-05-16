@@ -1,0 +1,71 @@
+version: "2.4"
+
+volumes:
+  data:
+
+networks:
+  postgres-net:
+
+services:
+  db:
+    image: postgres:11.6
+    container_name: db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      start_period: 30s
+    ports:
+      - 5432:5432
+    volumes:
+      - ./api/internal/schema/seeds:/seed
+      - data:/var/lib/postgresql/data
+    networks:
+      - postgres-net
+
+  debug-db:
+    image: dencold/pgcli
+    environment:
+      DB_URL: $DB_URL
+    networks:
+      - postgres-net
+
+  migration:
+    image: migrate/migrate
+    entrypoint: migrate create -ext sql -dir /migrations -seq
+    volumes:
+      - ./api/internal/schema/migrations:/migrations
+    networks:
+      - postgres-net
+
+  version:
+    image: migrate/migrate
+    command: -path /migrations -database $DB_URL version
+    volumes:
+      - ./api/internal/schema/migrations:/migrations
+    networks:
+      - postgres-net
+
+  up:
+    image: migrate/migrate
+    entrypoint: migrate -path /migrations -verbose -database $DB_URL up
+    volumes:
+      - ./api/internal/schema/migrations:/migrations
+    networks:
+      - postgres-net
+
+  down:
+    image: migrate/migrate
+    entrypoint: migrate -path /migrations -verbose -database $DB_URL down
+    volumes:
+      - ./api/internal/schema/migrations:/migrations
+    networks:
+      - postgres-net
+
+  # A migration script can fail because of invalid syntax in sql files. http://bit.ly/2HQHx5s
+  force:
+    image: migrate/migrate
+    entrypoint: migrate -path /migrations -verbose -database $DB_URL force
+    volumes:
+      - ./api/internal/schema/migrations:/migrations
+    networks:
+      - postgres-net

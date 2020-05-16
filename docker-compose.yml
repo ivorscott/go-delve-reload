@@ -1,11 +1,5 @@
 version: "2.4"
 
-volumes:
-  data:
-
-networks:
-  postgres-net:
-
 x-api: &default-api
   build:
     context: ./api
@@ -73,25 +67,3 @@ services:
     tty: true
     stdin_open: true
     command: dlv debug --accept-multiclient --continue --headless --listen=:2345 --api-version=2 --log ./cmd/api/
-
-  db:
-    image: postgres:11.6
-    container_name: db
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      start_period: 30s
-    ports:
-      - 5432:5432
-    volumes:
-      - data:/var/lib/postgresql/data
-      - /seed
-    networks:
-      - postgres-net
-
-  debug-db:
-    image: dencold/pgcli
-    environment:
-      DB_URL: postgres://postgres:postgres@db:5432/postgres?sslmode=disable
-    networks:
-      - postgres-net

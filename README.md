@@ -4,7 +4,7 @@
 
 ![Minion](docs/demo.png)
 
-Many improvements in Part 2 originate from [Ardan labs service training](https://github.com/ardanlabs/service-training).
+Many improvements in Part 3 originate from [Ardan labs service training](https://github.com/ardanlabs/service-training).
 
 ## Contents
 
@@ -39,7 +39,7 @@ If you recall, the previous post used Traefik for self-signed certificates. We'r
   },
 ```
 
-In Go, we can use the `crypto` package to generate a certs. Generating certs more than once replaces existing certs without issue.
+In Go, we can use the `crypto` package to generate a certs.
 
 ```makefile
 mkdir -p ./api/tls
@@ -224,10 +224,10 @@ In the end Docker should be optional and you should know your reasons for using 
 6. Integration Testing In CI
 7. Preparation For Deployments
 
-7 - Reduced Makefile scope to seeding and migrations
+7 - Removed Makefile
 
 Since I'm teaching docker, I don't want to abstract away all the commands. docker-compose is already an abstraction around docker.
-Makefiles tend to get long and complex. I don't want to get a single Makefile to become a central place for disparate concerns that teams can abuse.
+Makefiles tend to get long and complex. I don't want a single Makefile to become a central place for disparate concerns that teams can abuse. That being said I might use one for deployment only.
 
 </details>
 
@@ -259,11 +259,7 @@ API_PORT=4000
 PPROF_PORT=6060
 CLIENT_PORT=3000
 
-POSTGRES_DB=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_HOST=db
-POSTGRES_NET=go-delve-reload_postgres-net
+DB_URL=postgres://postgres:postgres@db:5432/postgres?sslmode=disable
 
 REACT_APP_BACKEND=http://localhost:4000/v1
 API_WEB_FRONTEND_ADDRESS=https://localhost:3000
@@ -273,7 +269,7 @@ API_WEB_FRONTEND_ADDRESS=https://localhost:3000
 
 3 - Create self-signed certificates
 
-The next command moves generated certificates to the `./api/tls/` directory.
+The next set of commands moves generated certificates to the `./api/tls/` directory.
 
 ```makefile
 mkdir -p ./api/tls
@@ -286,7 +282,7 @@ mv *.pem ./api/tls
 Run the database in the background.
 
 ```makefile
-docker-compose up db -d
+docker-compose up -d db
 ```
 
 #### Create your first migration
@@ -294,7 +290,7 @@ docker-compose up db -d
 Make a migration to create the products table.
 
 ```makefile
-make migration create_products_table
+docker-compose run migration create_products_table
 ```
 
 Add sql to both `up` & `down` migrations files found at: `./api/internal/schema/migrations/`.
@@ -326,7 +322,7 @@ DROP TABLE IF EXISTS products;
 Make another migration to add tags to products:
 
 ```
-make migration add_tags_to_products
+docker-compose run migration add_tags_to_products
 ```
 
 **Up**
@@ -351,13 +347,13 @@ DROP Column tags;
 Migrate up to the latest migration
 
 ```makefile
-make up # you can migrate down with "make down"
+docker-compose run up # you can migrate down with "docker-compose run down"
 ```
 
 Display which version you have selected. Expect it two print `2` since you created 2 migrations.
 
 ```makefile
-make version
+docker-compose run version
 ```
 
 [Learn more about my go-migrate Postgres helper](https://github.com/ivorscott/go-migrate-postgres-helper)
@@ -367,7 +363,7 @@ make version
 Create a seed file of the appropriate name matching the table name you wish to seed.
 
 ```makefile
-make seed products
+touch ./api/internal/schema/seeds/products.sql
 ```
 
 This adds an empty products.sql seed file found under `./api/internal/schema/seeds`. Add the following sql content:
@@ -387,7 +383,7 @@ Conflicts may arise when you execute the seed file more than once to the databas
 Finally, add the products seed to the database.
 
 ```
-make insert products
+docker-compose exec db psql postgres postgres -f /seed/products.sql
 ```
 
 Enter the database and examine its state.
@@ -481,23 +477,21 @@ docker-compose up api # develop api with live reload
 
 docker-compose up client # develop client react app
 
-docker-compose up db # start the database in the foreground
+docker-compose up -d db # start the database in the background
 
-docker-compose up debug-db # use pgcli to inspect postgres db
+docker-compose run debug-db # use pgcli to inspect postgres db
 
-make migration <name> # create a migration
+docker-compose run migration <name> # create a migration
 
-make version # print current migration version
+docker-compose run version # print current migration version
 
-make up <number> # migrate up a number (optional number, defaults to latest migration)
+docker-compose run up <number> # migrate up a number (optional number, defaults to latest migration)
 
-make down <number> # migrate down a number (optional number, defaults to 1)
+docker-compose run down <number> # migrate down a number (optional number, defaults to 1)
 
-make force <version> # Set version but don't run migration (ignores dirty state)
+docker-compose run force <version> # Set version but don't run migration (ignores dirty state)
 
-make seed <name> # create seed filename
-
-make insert <name> # insert seed file to database
+docker-compose exec db psql postgres postgres -f /seed/<name>.sql  # insert seed file to database
 ```
 
 #### Using the debugger in VSCode
