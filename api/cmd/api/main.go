@@ -95,7 +95,6 @@ func run() error {
 	// Enabled Profiler
 
 	go func() {
-
 		log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
 		err := http.ListenAndServe(cfg.Web.Debug, nil)
 		if err != nil {
@@ -106,7 +105,7 @@ func run() error {
 	// =========================================================================
 	// Start Database
 
-	repo, err := database.NewRepository(database.Config{
+	repo, close, err := database.NewRepository(database.Config{
 		User:       cfg.DB.User,
 		Host:       cfg.DB.Host,
 		Name:       cfg.DB.Name,
@@ -116,7 +115,7 @@ func run() error {
 	if err != nil {
 		return errors.Wrap(err, "connecting to db")
 	}
-	defer repo.Close()
+	defer close()
 
 	// =========================================================================
 	// Clean Logs
@@ -124,7 +123,7 @@ func run() error {
 	var discardLog *log.Logger
 
 	if !cfg.Web.Production {
-		// Prevents "tls: unknown certificate" errors caused by self-signed certificates.
+		// Hides "tls: unknown certificate" errors caused by self-signed certificates.
 		discardLog = log.New(ioutil.Discard, "", 0)
 	}
 

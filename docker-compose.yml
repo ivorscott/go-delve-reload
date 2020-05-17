@@ -1,5 +1,6 @@
 version: "2.4"
 
+# begin resuble block https://dockr.ly/3cDXmKA
 x-api: &default-api
   build:
     context: ./api
@@ -22,6 +23,7 @@ x-api: &default-api
   depends_on:
     db:
       condition: service_healthy
+# end resuble block
 
 services:
   api:
@@ -43,8 +45,7 @@ services:
       CHOKIDAR_USEPOLLING: "true"
     ports:
       - $CLIENT_PORT:$CLIENT_PORT
-    # fixes bug in react-scripts/start.js found in latest create react app release
-    # https://github.com/facebook/create-react-app/issues/8688
+    # fixes bug in create-react-app https://bit.ly/3dVy3Uw
     tty: true
     stdin_open: true
     volumes:
@@ -52,7 +53,7 @@ services:
       - /client/app/node_modules
 
   debug-api:
-    <<: *default-api
+    <<: *default-api # insert resuble block
     environment:
       API_WEB_ADDRESS: :8888
       API_WEB_DEBUG: :6061
@@ -60,8 +61,7 @@ services:
       - 2345:2345
       - 8888:8888
       - 6061:6061
-      # run a container without the default seccomp profile
-      # https://github.com/go-delve/delve/issues/515#issuecomment-214911481
+    # run a container without the default seccomp profile https://bit.ly/3bGjhj1
     security_opt:
       - "seccomp:unconfined"
     tty: true

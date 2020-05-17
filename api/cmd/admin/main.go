@@ -51,7 +51,7 @@ func run() error {
 	// =========================================================================
 	// Start Database
 
-	repo, err := database.NewRepository(database.Config{
+	repo, close, err := database.NewRepository(database.Config{
 		User:       cfg.DB.User,
 		Host:       cfg.DB.Host,
 		Name:       cfg.DB.Name,
@@ -61,7 +61,7 @@ func run() error {
 	if err != nil {
 		return errors.Wrap(err, "connecting to db")
 	}
-	defer repo.Close()
+	defer close()
 
 	switch cfg.Args.Num(0) {
 	case "migrate":

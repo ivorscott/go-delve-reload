@@ -92,7 +92,7 @@ func TestProducts(t *testing.T) {
 		log.Fatal("map:", err)
 	}
 
-	repo, err := database.NewRepository(database.Config{
+	repo, close, err := database.NewRepository(database.Config{
 		User:       cfg.DB.User,
 		Host:       cfg.DB.Host + ":" + hostPort.Port(),
 		Name:       cfg.DB.Name,
@@ -102,7 +102,7 @@ func TestProducts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err, "connecting to db")
 	}
-	defer repo.Close()
+	defer close()
 
 	log.Printf("Postgres container started, running at:  %s\n", repo.URL.String())
 
