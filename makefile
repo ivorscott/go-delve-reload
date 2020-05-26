@@ -1,10 +1,11 @@
 #!make
+# DON'T EXTEND THE SCOPE OF THIS FILE FOR DEVELOPMENT CONCERNS
 # USE THIS FILE FOR DEPLOYMENT ONLY
 
 include .env
 
 build: 
-	@echo "\n[ build api production image ]"
+	@echo "\n[ building production api images ]"
 
 	docker build --target prod \
 	--build-arg version=v1 \
@@ -15,37 +16,37 @@ build:
 	--tag devpies/gdr-api ./api
 
 login: 
-	@echo "\n[ log into private registry ]"
+	@echo "\n[ logging into private registry ]"
 	cat ./secrets/registry_pass | docker login --username `cat ./secrets/registry_user` --password-stdin
 
 publish:
-	@echo "\n[ publish production grade images ]"
+	@echo "\n[ publishing production grade images ]"
 	docker push devpies/gdr-api
 	docker push devpies/gdr-client
 
 deploy:
-	@echo "\n[ startup production stack ]"
+	@echo "\n[ deploying production stack ]"
 	@cat ./startup
 	@docker stack deploy -c docker-stack.yml --with-registry-auth gdr
 
 metrics: 
-	@echo "\n[ enable docker engine metrics ]"
+	@echo "\n[ enabling docker engine metrics ]"
 	./init/enable-monitoring.sh
 
 secrets: 
-	@echo "\n[ create swarm secrets ]"
+	@echo "\n[ creating swarm secrets ]"
 	./init/create-secrets.sh
 
-servers:
-	@echo "\n[ create servers ]"
-	./init/create-servers.sh
+server:
+	@echo "\n[ creating server ]"
+	./init/create-server.sh
 
-servers-d:
-	@echo "\n[ teardown swarm ]"
-	./init/destroy-servers.sh
+server-d:
+	@echo "\n[ destroying server ]"
+	./init/destroy-server.sh
 
 swarm:
-	@echo "\n[ create swarm with all managers ]"
+	@echo "\n[ create single node swarm ]"
 	./init/create-swarm.sh
 
 .PHONY: build 

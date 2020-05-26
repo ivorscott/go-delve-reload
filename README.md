@@ -278,6 +278,24 @@ docker-compose run down <number> # migrate down a number (optional number, defau
 docker-compose run force <version> # Set version but don't run migration (ignores dirty state)
 
 docker-compose exec db psql postgres postgres -f /seed/<name>.sql  # insert seed file to database
+
+make build # build production ready images
+
+make login # login to Docker Hub
+
+make publish # publish to Docker Hub
+
+make deploy # perform "docker stack deploy"
+
+make metrics # enable Docker engine metrics
+
+make secrets # create Docker swarm secrets
+
+make server # create digital ocean server
+
+make server-d # destroy digital ocean server
+
+make swarm # create single node Swarm cluster
 ```
 
 #### Using the debugger in VSCode

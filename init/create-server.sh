@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-for server in 1; do
+# create server
 docker-machine create \
   --driver=digitalocean \
   --digitalocean-access-token=`cat ./secrets/do_token` \
@@ -10,5 +10,4 @@ docker-machine create \
   --digitalocean-tags=gdr \
   --digitalocean-private-networking=true \
   --digitalocean-region="lon1" \
-  gdr${server} &
-done
+  gdr1 &
