@@ -1,10 +1,6 @@
 **/*/.vscode/settings.json
 .vscode/settings.json
 /secrets
-/prod_secrets
-/api/internal/mid/auth.go
-/api/internal/schema/migrations/
-/api/internal/schema/seeds/products.sql
 /api/__debug_bin
 /api/tls/*
 .env
