@@ -13,7 +13,7 @@ import (
 
 func API(shutdown chan os.Signal, repo *database.Repository, log *log.Logger, FrontendAddress string) http.Handler {
 
-	app := web.NewApp(shutdown, log, mid.Errors(log), mid.Logger(log), mid.Panics(log))
+	app := web.NewApp(shutdown, log, mid.Logger(log), mid.Errors(log), mid.Panics(log))
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{FrontendAddress},

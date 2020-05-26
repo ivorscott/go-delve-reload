@@ -1,29 +1,36 @@
-version: "3.7"
+version: "2.4"
+
+# begin resuble block https://dockr.ly/3cDXmKA
+x-api: &default-api
+  build:
+    context: ./api
+    target: dev
+  environment:
+    CGO_ENABLED: 0
+    API_DB_HOST: db
+    API_DB_DISABLE_TLS: "true"
+    API_WEB_PRODUCTION: "false"
+    API_WEB_ADDRESS: :$API_PORT
+    API_WEB_DEBUG: :$PPROF_PORT
+    API_WEB_READ_TIMEOUT: 7s
+    API_WEB_WRITE_TIMEOUT: 7s
+    API_WEB_SHUTDOWN_TIMEOUT: 7s
+    API_WEB_FRONTEND_ADDRESS: $API_WEB_FRONTEND_ADDRESS
+  volumes:
+    - ./api:/api
+  networks:
+    - postgres-net
+  depends_on:
+    db:
+      condition: service_healthy
+# end resuble block
 
 services:
   api:
-    build:
-      context: ./api
-      target: dev
-    container_name: api
-    environment:
-      CGO_ENABLED: 0
-      API_DB_HOST: db
-      API_DB_DISABLE_TLS: "true"
-      API_WEB_PRODUCTION: "false"
-      API_WEB_ADDRESS: :$API_PORT
-      API_WEB_DEBUG: :$PPROF_PORT
-      API_WEB_READ_TIMEOUT: 7s
-      API_WEB_WRITE_TIMEOUT: 7s
-      API_WEB_SHUTDOWN_TIMEOUT: 7s
-      API_WEB_FRONTEND_ADDRESS: $API_WEB_FRONTEND_ADDRESS
+    <<: *default-api # insert resuble block
     ports:
       - $API_PORT:$API_PORT
       - $PPROF_PORT:$PPROF_PORT
-    volumes:
-      - ./api:/api
-    networks:
-      - postgres-net
     # swap commands to disable live reload
     # command: go run ./cmd/api
     command: CompileDaemon --build="go build -o main ./cmd/api" -log-prefix=false --command=./main
@@ -32,15 +39,13 @@ services:
     build:
       context: ./client
       target: dev
-    container_name: client
     environment:
       HTTPS: "true"
       REACT_APP_BACKEND: $REACT_APP_BACKEND
       CHOKIDAR_USEPOLLING: "true"
     ports:
       - $CLIENT_PORT:$CLIENT_PORT
-    # fixes bug in react-scripts/start.js found in latest create react app release
-    # https://github.com/facebook/create-react-app/issues/8688
+    # fixes bug in create-react-app https://bit.ly/3dVy3Uw
     tty: true
     stdin_open: true
     volumes:
@@ -48,45 +53,17 @@ services:
       - /client/app/node_modules
 
   debug-api:
-    build:
-      context: ./api
-      target: dev
-    container_name: debug-api
+    <<: *default-api # insert resuble block
     environment:
-      CGO_ENABLED: 0
-      API_DB_HOST: db
-      API_DB_DISABLE_TLS: "true"
-      API_WEB_PRODUCTION: "false"
       API_WEB_ADDRESS: :8888
-      API_WEB_READ_TIMEOUT: 7s
-      API_WEB_WRITE_TIMEOUT: 7s
-      API_WEB_SHUTDOWN_TIMEOUT: 7s
-      API_WEB_FRONTEND_ADDRESS: $API_WEB_FRONTEND_ADDRESS
-    volumes:
-      - ./api:/api
+      API_WEB_DEBUG: :6061
     ports:
       - 2345:2345
       - 8888:8888
-    networks:
-      - postgres-net
-      # run a container without the default seccomp profile
-      # https://github.com/go-delve/delve/issues/515#issuecomment-214911481
+      - 6061:6061
+    # run a container without the default seccomp profile https://bit.ly/3bGjhj1
     security_opt:
       - "seccomp:unconfined"
     tty: true
     stdin_open: true
     command: dlv debug --accept-multiclient --continue --headless --listen=:2345 --api-version=2 --log ./cmd/api/
-
-  db:
-    image: postgres:11.6
-    container_name: db
-    ports:
-      - 5432:5432
-    volumes:
-      - /seed
-    networks:
-      - postgres-net
-
-networks:
-  postgres-net:
-    external: true

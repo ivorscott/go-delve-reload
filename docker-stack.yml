@@ -20,8 +20,6 @@ services:
       POSTGRES_USER: /run/secrets/postgres_user
       POSTGRES_HOST: /run/secrets/postgres_host
       POSTGRES_PASSWORD: /run/secrets/postgres_passwd
-    # ports:
-    #   - 4000:4000
     deploy:
       labels:
         - traefik.frontend.rule=Host:api.gdr.ivorscott.com
@@ -42,8 +40,6 @@ services:
 
   client:
     image: devpies/gdr-client
-    # ports:
-    #   - 80:80
     deploy:
       labels:
         - traefik.frontend.rule=Host:gdr.ivorscott.com
@@ -72,12 +68,3 @@ secrets:
     external: true
   postgres_user:
     external: true
-# secrets:
-# postgres_db:
-#   file: ./prod_secrets/postgres_db
-#   postgres_passwd:
-#     file: ./prod_secrets/postgres_passwd
-#   postgres_host:
-#     file: ./prod_secrets/postgres_host
-#   postgres_user:
-#     file: ./prod_secrets/postgres_user

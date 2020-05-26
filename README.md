@@ -1,6 +1,6 @@
 # The Go and React Series
 
-## Deploying with Swarm and Traefik pt.7
+## Deploying with Swarm and Traefik pt.5
 
 ## Contents
 
@@ -18,7 +18,6 @@
 - Docker
 - DockerHub Account
 - Digital Ocean Account
-- Auth0 Account
 - A Domain Name (Try Namecheap)
 - Docker Machine
 - Managed Database (ElephantSQL is Free)
@@ -28,10 +27,10 @@
 ```
 git clone https://github.com/ivorscott/go-delve-reload
 cd go-delve-reload
-git checkout part7
+git checkout part5
 ```
 
-[Setup VSCode](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#setting-up-vscode)
+Please review [Setting Up VSCode](/ultimate-go-react-development-setup-with-docker#go-modules) to avoid intellisense errors in VSCode. This occurs because the project is a mono repo and the Go module directory is not the project root.
 
 ### Usage
 
@@ -43,41 +42,25 @@ The contents of .env should look like this:
 # ENVIRONMENT VARIABLES
 
 API_PORT=4000
+PPROF_PORT=6060
 CLIENT_PORT=3000
 
-AUTH0_DOMAIN=
-AUTH0_AUDIENCE=
-AUTH0_CLIENT_ID=
+DB_URL=postgres://postgres:postgres@db:5432/postgres?sslmode=disable
 
-POSTGRES_DB=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_HOST=db
-POSTGRES_NET=postgres-net
-
-REACT_APP_BACKEND=https://localhost:4000/v1
+REACT_APP_BACKEND=http://localhost:4000/v1
 API_WEB_FRONTEND_ADDRESS=https://localhost:3000
 ```
 
-That's it. No further modifications required.
-
 2 - Unblock port 5432 for postgres
-
-Both the Makefile and docker-compose file reference the standard Postgres port: 5432. Before continuing, close any existing Postgres connections.
-For example, I have a pre-existing installation of Postgres installed with Homebrew. Executing `brew info postgresql@10` generates info on how to start/stop the service. If I didn't know what version I installed I would run `brew list`.
-With Homebrew I do:
-
-```
-pg_ctl -D /usr/local/var/postgresql@10 stop
-killall postgresql
-```
 
 3 - Create self-signed certificates
 
-The next command moves generated certificates to the `./api/tls/` directory.
+The next set of commands moves generated certificates to the `./api/tls/` directory.
 
 ```makefile
-make cert
+mkdir -p ./api/tls
+go run $(go env GOROOT)/src/crypto/tls/generate_cert.go --rsa-bits=2048 --host=localhost
+mv *.pem ./api/tls
 ```
 
 4 - Setup up the Postgres container
@@ -85,7 +68,7 @@ make cert
 Run the database in the background.
 
 ```makefile
-make db
+docker-compose up -d db
 ```
 
 #### Create your first migration
@@ -93,7 +76,7 @@ make db
 Make a migration to create the products table.
 
 ```makefile
-make migration create_products_table
+docker-compose run migration create_products_table
 ```
 
 Add sql to both `up` & `down` migrations files found at: `./api/internal/schema/migrations/`.
@@ -125,7 +108,7 @@ DROP TABLE IF EXISTS products;
 Make another migration to add tags to products:
 
 ```
-make migration add_tags_to_products
+docker-compose run migration add_tags_to_products
 ```
 
 **Up**
@@ -150,13 +133,13 @@ DROP Column tags;
 Migrate up to the latest migration
 
 ```makefile
-make up # you can migrate down with "make down"
+docker-compose run up # you can migrate down with "docker-compose run down"
 ```
 
 Display which version you have selected. Expect it two print `2` since you created 2 migrations.
 
 ```makefile
-make version
+docker-compose run version
 ```
 
 [Learn more about my go-migrate Postgres helper](https://github.com/ivorscott/go-migrate-postgres-helper)
@@ -166,7 +149,7 @@ make version
 Create a seed file of the appropriate name matching the table name you wish to seed.
 
 ```makefile
-make seed products
+touch ./api/internal/schema/seeds/products.sql
 ```
 
 This adds an empty products.sql seed file found under `./api/internal/schema/seeds`. Add the following sql content:
@@ -186,36 +169,32 @@ Conflicts may arise when you execute the seed file more than once to the databas
 Finally, add the products seed to the database.
 
 ```
-make insert products
+docker-compose exec db psql postgres postgres -f /seed/products.sql
 ```
 
 Enter the database and examine its state.
 
 ```makefile
-make debug-db
+docker-compose run debug-db
 ```
 
-![Minion](docs/debug-db.png)
+![Minion](docs/compose-db-debug.png)
 
-If the database gets deleted, you don't need to repeat every instruction. Simply run:
-
-```
-make db
-make up
-make insert products
-```
+If the database container is removed, you don't need to start from scratch. A named volume was created to persist the data. Simply run the container in the background again.
 
 5 - Run the api and client containers
 
 #### Run the Go API container with live reload enabled
 
-`make api`
+`docker-compose up api`
 
 #### Run the React TypeScript app container
 
-`make client`
+`docker-compose up client`
 
 ![Minion](docs/run.png)
+
+or `docker-compose up api client`
 
 First, navigate to the API in the browser at: <https://localhost:4000/v1/products>.
 
@@ -239,169 +218,97 @@ go run ./cmd/api
 # go run ./cmd/api --db-disable-tls=true
 ```
 
+### Try it in Postman
+
+**List products**
+
+GET <https://localhost:4000/v1/products>
+
+**Retrieve one product**
+
+GET <https://localhost:4000/v1/products/:id>
+
+**Create a product**
+
+POST <https://localhost:4000/v1/products>
+
+```
+{
+	"name": "Game Cube",
+	"price": 74,
+	"description": "The GameCube is the first Nintendo console to use optical discs as its primary storage medium.",
+	"tags": null
+}
+```
+
+**Update a product**
+
+PUT <https://localhost:4000/v1/products/:id>
+
+```
+{
+	"name": "Nintendo Rich!"
+}
+```
+
+**Delete a product**
+
+DELETE <https://localhost:4000/v1/products/:id>
+
 #### Commands
 
 ```makefile
 
-make api # develop api with live reload
+docker-compose up api # develop api with live reload
 
-make cert # generate self-signed certificates
+docker-compose up client # develop client react app
 
-make client # develop client react app
+docker-compose up -d db # start the database in the background
 
-make db # start the database in the background
+docker-compose run debug-db # use pgcli to inspect postgres db
 
-make debug-api # use delve on the same api in a separate container (no live reload)
+docker-compose run migration <name> # create a migration
 
-make debug-db # use pgcli to inspect postgres db
+docker-compose run version # print current migration version
 
-make rm # remove all containers
+docker-compose run up <number> # migrate up a number (optional number, defaults to latest migration)
 
-make rmi # remove all images
+docker-compose run down <number> # migrate down a number (optional number, defaults to 1)
 
-make exec user="..." service="..." cmd="..." # execute command in running container
+docker-compose run force <version> # Set version but don't run migration (ignores dirty state)
 
-make tidy # clean up unused api dependencies
-
-make test-api # run api tests
-
-make test-client # run client tests
-
-make migration <name> # create a migration
-
-make version # print current migration version
-
-make up <number> # migrate up a number (optional number, defaults to latest migration)
-
-make down <number> # migrate down a number (optional number, defaults to 1)
-
-make force <version> # Set version but don't run migration (ignores dirty state)
-
-make seed <name> # create seed filename
-
-make insert <name> # insert seed file to database
+docker-compose exec db psql postgres postgres -f /seed/<name>.sql  # insert seed file to database
 ```
 
-## The Go and React Series
+#### Using the debugger in VSCode
 
-### Go and React Development with Docker pt.1
+If you wish to debug with Delve you can do this in a separate container instance on port 8888 automatically.
 
-<details>
+```makefile
+docker-compose up debug-api
+```
 
-  <summary>See content</summary>
+Set a break point on a route handler. Click 'Launch remote' then visit the route in the browser.
 
-  <br/>
+[Read previous tutorial about delve debugging](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#delve-debugging-a-go-api)
 
-- VSCode Setup
-- Docker Basics
-- Multi-stage Builds
-- Docker Compose
-- Using Makefiles
-- Using Postgres
-- Using Traefik
-- Live Reloading a Go API
-- Delve Debugging a Go API
-- Testing
+#### VSCode launch.json
 
-</details>
-
-### Transitioning to Go pt.2
-
-<details>
-
-  <summary>See content</summary>
-
-  <br/>
-
-- Why Go?
-- Challenges
-
-</details>
-
-### Building an API with Go pt.3
-
-<details>
-  <summary>See content</summary>
-
-  <br/>
-
-- Package Oriented Design
-- Configuration
-- Database Connection
-- Docker Secrets
-- Graceful Shutdown
-- Middleware
-- Handling Requests
-- Error Handling
-- Seeding & Migrations (With Go-Migrate)
-- Integration Testing (With TestContainers-Go)
-
-</details>
-
-### My API Workflow with Go pt.4
-
-<details>
-  <summary>See content</summary>
-
-  <br/>
-
-- A Demo
-- Profiling
-
-</details>
-
-### OAuth 2 with Auth0 in Go pt.5
-
-<details>
-  <summary>See content</summary>
-
-  <br/>
-
-- OAuth
-- Auth0
-- Authentication
-- Authorization
-
-</details>
-
-### Observability Metrics in Go pt.6
-
-<details>
-  <summary>See content</summary>
-
-  <br/>
-
-- Open Telemetry
-- Prometheus
-- Grafana
-
-</details>
-
-### Deploying with Swarm and Traefik pt.7
-
-<details>
-  <summary>See content</summary>
-
-  <br/>
-  
-- Digital Ocean
-- Docker Hub
-- Docker Machine
-- Docker Swarm
-- Healthchecks
-- Traefik
-- Deployment
-
-</details>
-
-### CICD with Portainer and Drone pt.8
-
-<details>
-  <summary>See content</summary>
-
-  <br/>
-
-- Drone CI
-- Portainer
-
-</details>
+```
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch remote",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "cwd": "${workspaceFolder}/api",
+      "remotePath": "/api",
+      "port": 2345,
+      "showLog": true,
+      "trace": "verbose"
+    }
+  ]
+}
+```
