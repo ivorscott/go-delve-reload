@@ -244,7 +244,7 @@ cd go-delve-reload
 git checkout part3
 ```
 
-[Setup VSCode](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker#setting-up-vscode)
+Please review [Setting Up VSCode](/ultimate-go-react-development-setup-with-docker#go-modules) to avoid intellisense errors in VSCode. This occurs because the project is a mono repo and the Go module directory is not the project root.
 
 ### Usage
 
