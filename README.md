@@ -1,6 +1,6 @@
 # go-delve-reload
 
-### The Ultimate Go and React Development Setup with Docker
+### Go and React Development with Docker pt.1
 
 This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker). If you follow along, the project starter is available under the `starter` branch.
 
