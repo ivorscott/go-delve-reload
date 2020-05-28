@@ -1,6 +1,6 @@
 version: "2.4"
 
-# begin resuble block https://dockr.ly/3cDXmKA
+# begin reusable block https://dockr.ly/3cDXmKA
 x-api: &default-api
   build:
     context: ./api
@@ -23,11 +23,11 @@ x-api: &default-api
   depends_on:
     db:
       condition: service_healthy
-# end resuble block
+# end reusable block
 
 services:
   api:
-    <<: *default-api
+    <<: *default-api # insert reusable block
     ports:
       - $API_PORT:$API_PORT
       - $PPROF_PORT:$PPROF_PORT
@@ -53,7 +53,7 @@ services:
       - /client/app/node_modules
 
   debug-api:
-    <<: *default-api # insert resuble block
+    <<: *default-api # insert reusable block
     environment:
       API_WEB_ADDRESS: :8888
       API_WEB_DEBUG: :6061

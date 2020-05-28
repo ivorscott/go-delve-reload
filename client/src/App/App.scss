@@ -31,66 +31,84 @@ body {
 
   &__logo-box {
     position: absolute;
-    top: 40px;
-    left: 40px;
+    @media screen and (min-width: 768px) {
+      top: 40px;
+      left: 40px;
+    }
+    @media screen and (max-width: 767px) {
+      top: 10px;
+      width: 100%;
+      text-align: center;
+    }
   }
 
   &__logo {
     height: 35px;
   }
-
   &__text-box {
     position: absolute;
-    top: 30%;
+    top: 20%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
     color: #fff;
     text-transform: uppercase;
     backface-visibility: hidden;
+
     &-title {
       display: block;
       font-size: 45px;
-      font-weight: 400;
-      letter-spacing: 35px;
-      text-indent: 35px;
-      animation-name: moveInLeft;
-      animation-duration: 1s;
-      animation-timing-function: ease-out;
     }
     &-subtitle {
       display: block;
-      margin-bottom: 20px;
       font-size: 18px;
-      font-weight: 400;
-      letter-spacing: 17.4px;
-      text-indent: 17.4px;
-      font-style: italic;
-      font-family: Tahoma, Geneva, Verdana, sans-serif;
-      animation: moveInRight 1s ease-out;
+    }
+    @media screen and (min-width: 768px) {
+      &-title {
+        font-weight: 400;
+        letter-spacing: 35px;
+        text-indent: 35px;
+        animation-name: moveInLeft;
+        animation-duration: 1s;
+        animation-timing-function: ease-out;
+      }
+      &-subtitle {
+        margin-bottom: 20px;
+        font-weight: 400;
+        letter-spacing: 17.4px;
+        text-indent: 17.4px;
+        font-style: italic;
+        font-family: Tahoma, Geneva, Verdana, sans-serif;
+        animation: moveInRight 1s ease-out;
+      }
     }
   }
 
   &__cta {
-    &:link,
-    &:visited {
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 15px 40px;
-      display: inline-block;
-      border-radius: 100px;
-      transition: all 0.2s;
-      position: relative;
+    @media screen and (max-width: 767px) {
+      display: none;
     }
+    @media screen and (min-width: 768px) {
+      &:link,
+      &:visited {
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 15px 40px;
+        display: inline-block;
+        border-radius: 100px;
+        transition: all 0.2s;
+        position: relative;
+      }
 
-    &--white {
-      color: #777;
-      background: #fff;
-    }
+      &--white {
+        color: #777;
+        background: #fff;
+      }
 
-    &--animated {
-      animation: moveInBottom 0.5s ease-out 0.75s;
-      animation-fill-mode: backwards;
+      &--animated {
+        animation: moveInBottom 0.5s ease-out 0.75s;
+        animation-fill-mode: backwards;
+      }
     }
   }
 }
@@ -110,6 +128,12 @@ body {
     height: 100%;
     flex-direction: column;
     justify-content: flex-end;
+    @media screen and (max-width: 767px) {
+      &-title,
+      &-discount {
+        display: none;
+      }
+    }
   }
 }
 

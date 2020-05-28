@@ -98,7 +98,7 @@ func run() error {
 		log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
 		err := http.ListenAndServe(cfg.Web.Debug, nil)
 		if err != nil {
-			log.Printf("main: Debug service listening on %s", cfg.Web.Debug)
+			log.Printf("main: Debug service failed listening on %s", cfg.Web.Debug)
 		}
 	}()
 
