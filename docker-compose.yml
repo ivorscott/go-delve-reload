@@ -5,17 +5,6 @@ x-api: &default-api
   build:
     context: ./api
     target: dev
-  environment:
-    CGO_ENABLED: 0
-    API_DB_HOST: db
-    API_DB_DISABLE_TLS: "true"
-    API_WEB_PRODUCTION: "false"
-    API_WEB_ADDRESS: :$API_PORT
-    API_WEB_DEBUG: :$PPROF_PORT
-    API_WEB_READ_TIMEOUT: 7s
-    API_WEB_WRITE_TIMEOUT: 7s
-    API_WEB_SHUTDOWN_TIMEOUT: 7s
-    API_WEB_FRONTEND_ADDRESS: $API_WEB_FRONTEND_ADDRESS
   volumes:
     - ./api:/api
   networks:
@@ -25,9 +14,24 @@ x-api: &default-api
       condition: service_healthy
 # end reusable block
 
+# begin reusable block
+x-env: &default-env
+  CGO_ENABLED: 0
+  API_DB_HOST: db
+  API_DB_DISABLE_TLS: "true"
+  API_WEB_PRODUCTION: "false"
+  API_WEB_ADDRESS: :$API_PORT
+  API_WEB_DEBUG: :$PPROF_PORT
+  API_WEB_READ_TIMEOUT: 7s
+  API_WEB_WRITE_TIMEOUT: 7s
+  API_WEB_SHUTDOWN_TIMEOUT: 7s
+  API_WEB_FRONTEND_ADDRESS: $API_WEB_FRONTEND_ADDRESS
+# end reusable block
+
 services:
   api:
     <<: *default-api # insert reusable block
+    environment: *default-env # insert reusable block
     ports:
       - $API_PORT:$API_PORT
       - $PPROF_PORT:$PPROF_PORT
@@ -55,6 +59,7 @@ services:
   debug-api:
     <<: *default-api # insert reusable block
     environment:
+      <<: *default-env # insert reusable block
       API_WEB_ADDRESS: :8888
       API_WEB_DEBUG: :6061
     ports:
