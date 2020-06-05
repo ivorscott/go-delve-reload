@@ -4,6 +4,8 @@
 
 This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker). If you follow along, the project starter is available under the `starter` branch.
 
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/G2G01SD6G)
+
 ## Contents
 
 - VSCode Setup
