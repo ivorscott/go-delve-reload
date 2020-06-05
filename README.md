@@ -1,6 +1,6 @@
 # The Go and React Series
 
-## My API Workflow with Go pt.3 + Building an API with Go pt.4
+## My API Workflow with Go pt.3
 
 This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part3#profiling).
 
