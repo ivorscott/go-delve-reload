@@ -4,6 +4,8 @@
 
 This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part3#profiling).
 
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/G2G01SD6G)
+
 ![Minion](docs/demo.png)
 
 Many improvements in Part 3 originate from [Ardan labs service training](https://github.com/ardanlabs/service-training).
