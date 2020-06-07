@@ -43,7 +43,7 @@ FROM dev as build-stage
 COPY . .
 
 # 13. Build api
-RUN go build -o main ./cmd/api
+RUN GOOS=linux go build -ldflags="-s -w" -o main ./cmd/api
 
 # 15. Install aquasecurity's trivy for robust image scanning
 FROM aquasec/trivy:0.4.4 as trivy
