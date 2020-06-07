@@ -59,7 +59,7 @@ FROM test as build-stage
 # 16. Build the api with "-ldflags" aka linker flags to reduce binary size
 # -s = disable symbol table
 # -w = disable DWARF generation
-RUN go build -ldflags "-s -w" -o main ./cmd/api
+RUN GOOS=linux go build -ldflags "-s -w" -o main ./cmd/api
 
 # 17. Extend the base stage and create a new stage named prod
 FROM base as prod
