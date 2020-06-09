@@ -51,7 +51,7 @@ go run $(go env GOROOT)/src/crypto/tls/generate_cert.go --rsa-bits=2048 --host=l
 mv *.pem ./api/tls
 ```
 
-The following demonstrates how we can switch between self-signed certificates and Traefik. When `cfg.Web.Production` is true, we are using Traefik. In Part 3 ("Docker Swarm and Traefik"), we will have a separate compose file for production.
+The following demonstrates how we can switch between self-signed certificates and Traefik. When `cfg.Web.Production` is true, we are using Traefik. In a later post, we will have a separate Traefik compose file for production deployments.
 
 ```go
 // main.go
@@ -204,7 +204,7 @@ Docker secrets are a Swarm specific construct. They aren't secret in docker-comp
 
 ```
 
-More on Docker secrets when we get to production (discussed in Part 4, _"Docker Swarm and Traefik"_).
+More on Docker secrets when we get to production in a later post.
 
 5 - Removed PgAdmin4
 
