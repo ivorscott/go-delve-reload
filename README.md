@@ -2,7 +2,7 @@
 
 ## My API Workflow with Go pt.3
 
-This repository is paired with a [blog post](https://blog.ivorscott.com/ultimate-go-react-development-setup-with-docker-part3).
+This repository is paired with a [blog post](https://medium.com/swlh/my-api-workflow-with-go-pt-3-c0b7f808a38b).
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/G2G01SD6G)
 
