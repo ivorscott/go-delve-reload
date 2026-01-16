@@ -2,6 +2,8 @@
 
 ## Deploying with Swarm and Traefik pt.5
 
+>Unfortunately I stopped this blog series at part 3. The code here would have been part 5. Part 4 doesn't exist.
+
 ## Contents
 
 - Digital Ocean
